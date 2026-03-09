@@ -2,6 +2,7 @@
 using MakeMeSushi.Data;
 using MakeMeSushi.DTOs;
 using MakeMeSushi.Models;
+using MakeMeSushi.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,10 +13,12 @@ namespace MakeMeSushi.Controllers
     public class AuthController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IAuthService _authService;
 
-        public AuthController(AppDbContext context)
+        public AuthController(AppDbContext context, IAuthService authService)
         {
             _context = context;
+            _authService = authService;
         }
 
         [HttpPost("register")]
@@ -51,7 +54,7 @@ namespace MakeMeSushi.Controllers
                 return BadRequest("Wrong password.");
             }
 
-            return Ok("Login succesful, token is getting ready...");
+            return Ok(_authService.CreateToken(user));
         }
     }
 }
