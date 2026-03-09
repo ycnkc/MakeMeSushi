@@ -1,0 +1,6 @@
+@MakeMeSushi_HostAddress = http://localhost:5008
+
+GET {{MakeMeSushi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
