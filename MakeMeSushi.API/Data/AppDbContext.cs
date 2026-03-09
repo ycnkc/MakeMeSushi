@@ -1,7 +1,7 @@
-﻿using MakeMeSushi.Models;
+﻿using MakeMeSushi.API.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace MakeMeSushi.Data
+namespace MakeMeSushi.API.Data
 {
     public class AppDbContext : DbContext
     {
@@ -12,6 +12,7 @@ namespace MakeMeSushi.Data
         public DbSet<User> Users { get; set; }
         public DbSet<PomodoroSession> PomodoroSessions {get; set;}
         public DbSet<Inventory> Inventory { get; set; }
+        public DbSet<Sushi> Sushis { get; set; }
  
         protected override void OnModelCreating(ModelBuilder modelBuilder) 
         {

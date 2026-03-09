@@ -1,4 +1,4 @@
-﻿namespace MakeMeSushi.DTOs
+﻿namespace MakeMeSushi.API.DTOs
 {
     public class UserLoginDto
     {

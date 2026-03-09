@@ -1,10 +1,10 @@
-﻿using MakeMeSushi.Models;
+﻿using MakeMeSushi.API.Services;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-
-namespace MakeMeSushi.Services
+    
+namespace MakeMeSushi.API.Services
 {
     public class AuthService : IAuthService
     {

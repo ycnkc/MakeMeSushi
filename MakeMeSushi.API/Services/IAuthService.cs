@@ -1,6 +1,6 @@
-﻿using MakeMeSushi.Models;
+﻿using MakeMeSushi.API.Models;
 
-namespace MakeMeSushi.Services
+namespace MakeMeSushi.API.Services
 {
     public interface IAuthService
     {

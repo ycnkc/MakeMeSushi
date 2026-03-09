@@ -1,4 +1,4 @@
-﻿namespace MakeMeSushi.Models
+﻿namespace MakeMeSushi.API.Models
 {
     public class PomodoroSession
     {

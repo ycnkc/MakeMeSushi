@@ -1,8 +1,8 @@
 ﻿using BCrypt.Net;
-using MakeMeSushi.Data;
-using MakeMeSushi.DTOs;
-using MakeMeSushi.Models;
-using MakeMeSushi.Services;
+using MakeMeSushi.API.Data;
+using MakeMeSushi.API.DTOs;
+using MakeMeSushi.API.Models;
+using MakeMeSushi.API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
