@@ -13,6 +13,7 @@ namespace MakeMeSushi.API.Data
         public DbSet<PomodoroSession> PomodoroSessions {get; set;}
         public DbSet<Inventory> Inventory { get; set; }
         public DbSet<Sushi> Sushis { get; set; }
+        public DbSet<CompletedSushi> CompletedSushis { get; set; }
  
         protected override void OnModelCreating(ModelBuilder modelBuilder) 
         {
