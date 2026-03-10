@@ -5,6 +5,7 @@ namespace MakeMeSushi.API.Models
         public int Id { get; set; }
         public int UserId { get; set; }
         public int SushiID { get; set; }
+        public string SushiName { get; set; } = string.Empty;
         public DateTime DateCompleted { get; set; } = DateTime.Now;
 
         public User User { get; set; } = null!;

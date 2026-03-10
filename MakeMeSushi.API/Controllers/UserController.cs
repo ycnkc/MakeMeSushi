@@ -35,6 +35,7 @@ public class UserController : ControllerBase
          {
              UserId = user.Id,
              SushiID = sushiID,
+             SushiName = sushi.Name,
              DateCompleted = DateTime.Now
          };
 
