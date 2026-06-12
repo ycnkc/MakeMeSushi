@@ -3,6 +3,7 @@ using MakeMeSushi.API.Data;
 using MakeMeSushi.API.DTOs;
 using MakeMeSushi.API.Models;
 using MakeMeSushi.API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -56,5 +57,24 @@ namespace MakeMeSushi.Controllers
 
             return Ok(_authService.CreateToken(user));
         }
+
+        [HttpGet("check-user/{username}")]
+        public async Task<IActionResult> CheckUser(string username)
+        {
+            var userExists = await _context.Users.AnyAsync(u => u.Username == username);
+            return Ok(new {exists = userExists});
+        }
+
+        [Authorize]
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            return Ok(new {message = "Logged out successfully."});
+        }
+        
+
     }
+
+    
 }
+
