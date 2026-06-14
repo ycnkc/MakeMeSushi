@@ -1,0 +1,135 @@
+/* src/components/Dashboard.css */
+.dashboard-screen {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  background-image: url('../assets/bg_dashboard.png'); 
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+}
+
+.menu-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  cursor: pointer;
+  z-index: 50;
+  transition: transform 0.1s;
+}
+
+.menu-button:active { transform: scale(0.9); }
+
+.menu-icon-img {
+  width: 50px;
+  display: block;
+  filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.4)); 
+}
+
+.coin-display {
+  position: absolute;
+  top: 25px;
+  right: 25px;
+  padding: 10px 15px;
+  font-size: 16px;
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  z-index: 50;
+}
+
+.dashboard-right-column {
+  position: absolute;
+  bottom: 20%; 
+  right: 5%; 
+  display: flex;
+  flex-direction: row; 
+  align-items: flex-end; 
+  gap: 40px; 
+}
+
+.dialogue-maneki-row {
+  display: flex;
+  flex-direction: row; 
+  align-items: flex-end; 
+  gap: 15px;
+  margin-bottom: 25px; 
+}
+
+#maneki-dashboard { width: 170px; }
+
+.dashboard-timer-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.dashboard-clock-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.dashboard-clock-wrapper:active { transform: scale(0.95); }
+
+#timer-clock-image { width: 280px; display: block; }
+
+.digital-clock-text {
+  position: absolute;
+  font-size: 35px; 
+  color: #000; 
+  margin: 0;
+  top: 43%;
+  left: 20%;
+}
+
+.preparing-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px; 
+}
+
+.preparing-sushi-img {
+  width: 70px; 
+  filter: drop-shadow(0px 4px 0px rgba(0,0,0,0.3));
+  image-rendering: pixelated;
+}
+
+.preparing-text {
+  font-size: 10px;
+  color: #000;
+  margin-top: 10px;
+  background-color: #fff;
+  padding: 5px 10px;
+  border: 2px solid #000;
+  box-shadow: 3px 3px 0px rgba(0,0,0,0.2);
+  white-space: nowrap;
+}
+
+.pulse-sushi { animation: pulseSushi 2s infinite ease-in-out; }
+
+@keyframes pulseSushi {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.cancel-order-btn {
+  background-color: #ff8a80; 
+  padding: 4px 8px; 
+  font-size: 9px;
+  border: 2px solid #000;
+  box-shadow: 2px 2px 0px rgba(0,0,0,0.5);
+}
+.cancel-order-btn:hover { background-color: #ff5252; }
+.cancel-order-btn:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0px rgba(0,0,0,0.5); }
