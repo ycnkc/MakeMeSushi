@@ -15,7 +15,10 @@
 
 body {
   /* Tam siyah (#000) yerine çok koyu, sıcak bir kahve-gri tonu */
-  background-color: #1a1612; 
+  background-image: url('./assets/bg.png'); 
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   overflow: hidden;
   margin: 0;
   padding: 0;
@@ -33,22 +36,32 @@ img {
 }
 
 /* Oyunun kendisi (Ortadaki ekran) */
+/* src/App.css */
 .game-container {
-  background-image: url('./assets/bg_wood.png'); /* Ahşap arkaplanı buraya taşıdık */
+  background-image: url('./assets/bg_wood.png'); 
   background-size: cover;
   background-position: center;
-  
-  /* Boyut ve Oran Ayarları */
-  height: 85vh; /* Yüksekliği ekranın %85'ine sabitledik */
-  aspect-ratio: 16 / 9; /* Sahnenin genişlik/yükseklik oranını korur */
-  max-width: 95vw; /* Dar ekranlarda taşmayı önler */
-  
+  height: 85vh; 
+  aspect-ratio: 16 / 9; 
+  max-width: 95vw; 
   position: relative;
   overflow: hidden;
+
+  /* --- YENİ JAPON STİLİ ÇERÇEVE --- */
   
-  /* Çerçeve (İsteğe bağlı, retro bir derinlik katar) */
-  border: 4px solid #222; 
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+  /* 1. Kalın dış çerçeve (Koyu Japon ahşabı) */
+  border: 8px solid #2b1d14; 
+  
+  /* 2. En dışı saran ince siyah kontür */
+  outline: 4px solid #0f0a07; 
+  
+  /* 3. İç bambu/altın astar ve derinlik gölgesi */
+  box-shadow: 
+    inset 0 0 0 4px #c28f5b,  /* İç kısımdaki açık renkli bambu hattı */
+    inset 0 0 0 8px #2b1d14,  /* Astarı kapatan ince iç ahşap */
+    0 15px 40px rgba(0, 0, 0, 0.9); /* Ekrandan dışarı taşan dramatik gölge */
+    
+  border-radius: 2px; /* Sert köşeleri çok hafif tıraşlar */
 }
 
 .fade-in {

@@ -32,7 +32,7 @@ function App() {
   const [isNewUser, setIsNewUser] = useState(false); 
 
   const [dashboardMode, setDashboardMode] = useState('dialogue'); 
-  const [timeLeft, setTimeLeft] = useState(1 * 5); 
+  const [timeLeft, setTimeLeft] = useState(25 * 60); 
   const [isTimerRunning, setIsTimerRunning] = useState(false); 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showSushiSelector, setShowSushiSelector] = useState(false); 
@@ -104,7 +104,7 @@ useEffect(() => {
       }
 
       setTargetSushi(null); 
-      setTimeLeft(1 * 5); // Test için 5 saniye ayarında bıraktım
+      setTimeLeft(25 * 60); // Test için 25 dakika ayarında bıraktım
     }
     return () => clearInterval(interval);
   }, [isTimerRunning, timeLeft, targetSushi]);
