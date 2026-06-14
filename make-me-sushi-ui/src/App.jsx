@@ -32,7 +32,7 @@ function App() {
   const [isNewUser, setIsNewUser] = useState(false); 
 
   const [dashboardMode, setDashboardMode] = useState('dialogue'); 
-  const [timeLeft, setTimeLeft] = useState(25 * 60); 
+  const [timeLeft, setTimeLeft] = useState(1 * 5); 
   const [isTimerRunning, setIsTimerRunning] = useState(false); 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showSushiSelector, setShowSushiSelector] = useState(false); 
@@ -61,7 +61,7 @@ function App() {
   }, []);
 
   // Timer ve Kazanım Mantığı
-  useEffect(() => {
+useEffect(() => {
     let interval = null;
     if (isTimerRunning && timeLeft > 0) {
       interval = setInterval(() => setTimeLeft((time) => time - 1), 1000);
@@ -73,11 +73,38 @@ function App() {
       audio.play().catch(e => console.log(e)); 
 
       const reward = targetSushi.coinReward;
-      setCoins(prevCoins => prevCoins + reward);
+      const sushiId = targetSushi.id; // DB'ye göndermek için ID'yi alıyoruz
 
-      alert(`Ding! ${targetSushi.name} is ready! You earned ${reward} coins! 🪙`); 
+      // 1. Ekrandaki (UI) coini hemen artır
+      setCoins(prevCoins => prevCoins + reward);
+      
+      // 2. VERİTABANINA KAYDETME İŞLEMİ (Eksik olan kısım burasıydı)
+      const rawToken = localStorage.getItem('token');
+      if (rawToken) {
+        // Token'ın başındaki ve sonundaki olası çift tırnakları temizliyoruz
+        const cleanToken = rawToken.replace(/^"|"$/g, ''); 
+        
+        fetch(`http://localhost:5008/api/User/complete-focus/${sushiId}`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${cleanToken}` // Temizlenmiş token'ı yolluyoruz
+          }
+        })
+        .then(async res => {
+           if (res.ok) {
+               console.log("Harika! Sushi DB'ye başarıyla kaydedildi.");
+           } else {
+               console.error("DB Kayıt Hatası:", await res.text());
+           }
+        })
+        .catch(err => console.error("Sunucu bağlantı hatası:", err));
+      } else {
+        console.error("Token bulunamadı! Kullanıcı giriş yapmamış olabilir.");
+      }
+
       setTargetSushi(null); 
-      setTimeLeft(25 * 60); 
+      setTimeLeft(1 * 5); // Test için 5 saniye ayarında bıraktım
     }
     return () => clearInterval(interval);
   }, [isTimerRunning, timeLeft, targetSushi]);
@@ -110,15 +137,41 @@ function App() {
     } catch (error) { console.error(error); }
   };
 
-  const handleLogin = async () => {
+const handleLogin = async () => {
     try {
       const response = await fetch('http://localhost:5008/api/Auth/login', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: username.trim(), passwordHash: password })
       });
-      if (response.ok) { setIsNewUser(false); setStage('dashboard'); } 
-      else alert(await response.text());
-    } catch (error) { console.error(error); }
+
+      if (response.ok) {
+        // --- 1. DÜZELTİLEN KISIM: JSON yerine Text olarak okuyoruz ---
+        const token = await response.text(); 
+        localStorage.setItem('token', token); // Saf string'i doğrudan kaydediyoruz
+        // --------------------------------------------------------------
+
+        setIsNewUser(false); 
+        setStage('dashboard'); 
+        
+        // 2. STATS ENDPOINT'İNİ TOKEN İLE ÇAĞIR
+        try {
+          const statsRes = await fetch(`http://localhost:5008/api/User/stats`, {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}` 
+            }
+          });
+          
+          if (statsRes.ok) {
+            const statsData = await statsRes.json();
+            setCoins(statsData.currentCoins); 
+          }
+        } catch (error) { console.error("Statlar çekilemedi:", error); }
+        
+      } else {
+        alert(await response.text());
+      }
+    } catch (error) { console.error("Login hatası:", error); }
   };
 
   return (

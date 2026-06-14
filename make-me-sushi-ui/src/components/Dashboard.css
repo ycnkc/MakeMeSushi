@@ -1,58 +1,124 @@
 /* src/components/Dashboard.css */
+
+/* --- 1. ANA EKRAN KAPSAYICISI --- */
+/* App.css'teki 16:9 çerçevenin içini tam olarak kaplar ve taşmaları önler */
 .dashboard-screen {
   display: flex;
   flex-direction: column;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;  
+  height: 100%; 
   position: relative;
   background-image: url('../assets/bg_dashboard.png'); 
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   image-rendering: pixelated;
+  box-sizing: border-box; 
+  overflow: hidden; 
 }
 
-.menu-button {
+/* --- 2. BÜTÜNLEŞİK HUD PANELİ (Sipariş Kağıdı Görünümü) --- */
+.hud-order-paper {
   position: absolute;
-  top: 20px;
-  left: 20px;
-  cursor: pointer;
-  z-index: 50;
-  transition: transform 0.1s;
-}
-
-.menu-button:active { transform: scale(0.9); }
-
-.menu-icon-img {
-  width: 50px;
-  display: block;
-  filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.4)); 
-}
-
-.coin-display {
-  position: absolute;
-  top: 25px;
-  right: 25px;
-  padding: 10px 15px;
-  font-size: 16px;
-  color: #000;
+  top: -3%;
+  right: 20px; /* Köşeden biraz daha içeri aldık */
+  
+  background-image: url('../assets/paper.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  image-rendering: pixelated;
+  border: none;
+  
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
+  
+  /* Sıkışıklığı gidermek için elemanlar arası boşluğu 10'dan 15'e çıkardık */
+  gap: 15px; 
+  
+  /* Sağdan soldan ve üstten daha fazla boşluk verip ferahlattık */
+  padding: 30px 30px 50px 25px; 
+  
+  /* EN ÖNEMLİSİ: Kağıdın yanlardan ezilmemesi için sabit bir minimum genişlik */
+  min-width: 120px; 
+  
+  filter: drop-shadow(5px 5px 0px rgba(0,0,0,0.5));
   z-index: 50;
 }
 
+/* Kağıt üzerindeki başlık */
+.order-title {
+  font-size: 16px; /* Başlığı biraz daha belirgin yaptık */
+  color: #3e2723; 
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin: 0;
+  border-bottom: 2px dashed #3e2723; 
+  padding-bottom: 8px;
+  width: 90%; /* Çizginin kağıdın kenarlarına çok yaklaşmasını önler */
+  text-align: center;
+}
+
+/* Kağıt üzerindeki her bir satır öğesi */
+.order-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px; /* İkon ve yazı arasını açtık */
+  cursor: pointer;
+  width: 100%;
+  justify-content: flex-start;
+  transition: transform 0.1s;
+  padding-left: 10px; /* Sola çok yapışmasın diye ekstra boşluk */
+}
+
+.order-item .hud-icon-btn {
+  width: 32px;
+  height: auto;
+  image-rendering: pixelated;
+}
+
+.order-item .hud-coin-icon {
+  width: 28px;
+  height: auto;
+  image-rendering: pixelated;
+  filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.3));
+}
+
+.order-item-text,
+.hud-coin-text {
+  font-size: 14px; /* Yazıları biraz daha büyüttük */
+  color: #3e2723; 
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.order-item:hover {
+  transform: translateY(-2px);
+}
+
+.order-item-divider {
+  width: 70%; /* Çizgiyi çok az kısalttık ki kağıt kenarlarına değmesin */
+  height: 2px;
+  background-color: #3e2723;
+  opacity: 0.3;
+  border-radius: 2px;
+}
+
+/* --- 3. SAĞ ALT SÜTUN (Saat ve Kedi) --- */
 .dashboard-right-column {
   position: absolute;
   bottom: 20%; 
-  right: 5%; 
+  right: 1%; 
   display: flex;
   flex-direction: row; 
   align-items: flex-end; 
-  gap: 40px; 
+  gap: 20px; 
 }
 
+/* Maneki Neko ve Diyalog Balonu */
 .dialogue-maneki-row {
   display: flex;
   flex-direction: row; 
@@ -61,13 +127,25 @@
   margin-bottom: 25px; 
 }
 
-#maneki-dashboard { width: 170px; }
+#maneki-dashboard { 
+  width: 150px; 
+  image-rendering: pixelated;
+  filter: drop-shadow(0px 8px 0px rgba(0,0,0,0.4));
+  transition: transform 0.2s;
+  animation: breathe 4s infinite ease-in-out;
+}
 
+@keyframes breathe {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* Saat Alanı */
 .dashboard-timer-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 }
 
 .dashboard-clock-wrapper {
@@ -81,47 +159,73 @@
 
 .dashboard-clock-wrapper:active { transform: scale(0.95); }
 
-#timer-clock-image { width: 280px; display: block; }
+#timer-clock-image { 
+  width: 230px; 
+  display: block; 
+  image-rendering: pixelated;
+  filter: drop-shadow(0px 10px 0px rgba(0,0,0,0.4));
+}
 
 .digital-clock-text {
   position: absolute;
-  font-size: 35px; 
-  color: #000; 
+  font-size: 28px; /* Çok hafif küçülttük ki ekranın dışına taşıyor gibi durmasın */
+  color: #1a1a1a; /* Tam siyah yerine çok koyu bir LCD grisi */
   margin: 0;
-  top: 43%;
+  top: 44%;
   left: 20%;
+  
+  /* Ekrana "oyulmuş" hissi veren çok ince bir beyaz gölge hilesi */
+  text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.3);
+  letter-spacing: 2px;
 }
 
+/* --- İPUCU (HINT) YAZISI --- */
+.hint {
+  font-size: 8px;
+  color: #fcebc4; /* Krem rengi yazı */
+  padding: 8px 12px;
+  
+  /* Etikete derinlik veren gölge */
+    
+  margin-top: -15px; /* Saate biraz daha yakın dursun */
+  text-transform: uppercase; /* Harfleri büyütmek retro hissini artırır */
+  letter-spacing: 1px;
+  z-index: 10;
+}
+
+
+/* --- 4. ORTA ALT SÜTUN (Hazırlanan Sushi) --- */
 .preparing-container {
+  position: absolute;
+  bottom: 6%; 
+  left: 48%; 
+  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 20px; 
+  gap: 15px; 
+  z-index: 20; 
 }
 
 .preparing-sushi-img {
-  width: 70px; 
+  width: 130px; 
   filter: drop-shadow(0px 4px 0px rgba(0,0,0,0.3));
   image-rendering: pixelated;
+}
+
+.preparing-label-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
 }
 
 .preparing-text {
   font-size: 10px;
   color: #000;
-  margin-top: 10px;
-  background-color: #fff;
+  margin: 0;
   padding: 5px 10px;
-  border: 2px solid #000;
-  box-shadow: 3px 3px 0px rgba(0,0,0,0.2);
   white-space: nowrap;
-}
-
-.pulse-sushi { animation: pulseSushi 2s infinite ease-in-out; }
-
-@keyframes pulseSushi {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
 }
 
 .cancel-order-btn {
@@ -130,6 +234,69 @@
   font-size: 9px;
   border: 2px solid #000;
   box-shadow: 2px 2px 0px rgba(0,0,0,0.5);
+  width: 100%;
 }
+
 .cancel-order-btn:hover { background-color: #ff5252; }
-.cancel-order-btn:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0px rgba(0,0,0,0.5); }
+.cancel-order-btn:active { 
+  transform: translate(1px, 1px); 
+  box-shadow: 1px 1px 0px rgba(0,0,0,0.5); 
+}
+
+/* --- 5. ANİMASYONLAR --- */
+.float-sushi {
+  animation: floatSushi 1.5s infinite ease-in-out;
+}
+
+@keyframes floatSushi {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); } 
+  100% { transform: translateY(0px); }
+}
+
+.pulse-sushi { 
+  animation: pulseSushi 2s infinite ease-in-out; 
+}
+
+@keyframes pulseSushi {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.pulse-hint {
+  animation: pulseHint 2s infinite alternate;
+}
+
+@keyframes pulseHint {
+  from { opacity: 0.7; }
+  to { opacity: 1; }
+}
+
+/* Maneki Konuşma Balonu İçin */
+.text-box-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#text-box {
+  width: 300px;
+  height: auto;
+  image-rendering: pixelated;
+  filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.3));
+}
+
+.intro-text {
+  position: absolute;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #000;
+  text-align: center;
+  width: 80%;
+  margin: 0;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

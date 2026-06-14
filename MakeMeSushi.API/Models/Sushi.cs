@@ -8,7 +8,7 @@ namespace MakeMeSushi.API.Models
 
         public int RequiredFocusTime { get; set; }
         public int CoinReward { get; set; }
-
+        public int UnlockPrice { get; set; }
         public string ImagePath { get; set; } = string.Empty;
     }
 }

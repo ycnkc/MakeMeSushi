@@ -5,6 +5,8 @@ import textBox from '../assets/textbox.png';
 import manekiHappy from '../assets/maneki_happy.png';
 import PauseMenu from './PauseMenu';
 import SushiModal from './SushiModal';
+import coinIcon from '../assets/coin.png';
+import orderPaper from '../assets/paper.png'; // Senin çizdiğin yırtık kağıt
 import './Dashboard.css';
 
 export default function Dashboard({
@@ -15,20 +17,61 @@ export default function Dashboard({
   return (
     <div className="fade-in dashboard-screen">
       
-      {/* Sol Üst Menü İkonu */}
-      <div className="menu-button" onClick={() => setIsMenuOpen(true)}>
-        <img src={futomakiIcon} alt="Menu" className="menu-icon-img" />
+      {/* --- YENİ HUD: SİPARİŞ KAĞIDI (Order Paper) --- */}
+      <div className="hud-order-paper fade-in">
+        
+        {/* Başlık */}
+        <h3 className="order-title">ORDERS</h3>
+
+        {/* Menü İkonu (Tıklanabilir Satır) */}
+        <div className="order-item" onClick={() => setIsMenuOpen(true)}>
+          <img src={futomakiIcon} alt="Menu" className="hud-icon-btn" />
+          <span className="order-item-text">MENU</span>
+        </div>
+
+        {/* İnce ayırıcı çizgi */}
+        <div className="order-item-divider"></div>
+
+        {/* Altın İkonu ve Miktarı */}
+        <div className="order-item">
+          <img src={coinIcon} alt="Coin" className="hud-coin-icon" />
+          <span className="hud-coin-text">{coins}</span>
+        </div>
+        
       </div>
 
-      {/* Sağ Üst Coin Tabelası */}
-      <div className="coin-display">🪙 {coins}</div>
-
-      {/* PAUSE MENÜSÜ (Bileşen olarak çağrıldı) */}
+      {/* PAUSE MENÜSÜ */}
       {isMenuOpen && (
         <PauseMenu 
           setIsMenuOpen={setIsMenuOpen} setIsTimerRunning={setIsTimerRunning} 
           setStage={setStage} setUsername={setUsername} setPassword={setPassword} 
         />
+      )}
+
+      {/* HAZIRLANAN SUSHİ ALANI */}
+      {targetSushi && (
+        <div className="preparing-container fade-in">
+           <img 
+             src={sushiImages[targetSushi.imagePath]} 
+             alt="Preparing" 
+             className={`preparing-sushi-img ${isTimerRunning ? 'float-sushi' : ''}`} 
+           />
+           <div className="preparing-label-box">
+             <p className="preparing-text">
+               {isTimerRunning ? `Preparing ${targetSushi.name}...` : "Paused"}
+             </p>
+             
+             {/* CANCEL Butonu */}
+             <button className="pixel-btn cancel-order-btn fade-in" onClick={(e) => {
+                 e.stopPropagation(); 
+                 setTargetSushi(null);
+                 setIsTimerRunning(false);
+                 setTimeLeft(25 * 60); 
+               }}>
+               CANCEL
+             </button>
+           </div>
+        </div>
       )}
 
       {/* SAĞ SÜTUN: Saat ve Kedi */}
@@ -38,24 +81,6 @@ export default function Dashboard({
           {dashboardMode === 'focus' && (
             <div className="dashboard-timer-section fade-in">
                 
-                {/* Hazırlanan Sushi */}
-                {targetSushi && (
-                  <div className="preparing-container fade-in">
-                     <img src={sushiImages[targetSushi.imagePath]} alt="Preparing" className={`preparing-sushi-img ${isTimerRunning ? 'pulse-sushi' : ''}`} />
-                     <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px'}}>
-                       <p className="preparing-text">{isTimerRunning ? `Preparing ${targetSushi.name}...` : "Paused"}</p>
-                       {!isTimerRunning && (
-                         <button className="pixel-btn cancel-order-btn fade-in" onClick={(e) => {
-                             e.stopPropagation(); 
-                             setTargetSushi(null);
-                             setIsTimerRunning(false);
-                             setTimeLeft(25 * 60); 
-                           }}>CANCEL</button>
-                       )}
-                     </div>
-                  </div>
-                )}
-
                 {/* Saat */}
                 <div className="dashboard-clock-wrapper" onClick={() => {
                     if (!targetSushi) setShowSushiSelector(true);

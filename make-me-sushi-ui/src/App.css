@@ -7,19 +7,21 @@
   margin: 0;
   padding: 0;
   max-width: none; 
+  /* İçindeki game-container'ı ortalamak için Flexbox ekledik */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 body {
-  background-image: url('./assets/bg_wood.png');
-  background-size: cover;
-  background-position: center;
+  /* Tam siyah (#000) yerine çok koyu, sıcak bir kahve-gri tonu */
+  background-color: #1a1612; 
   overflow: hidden;
   margin: 0;
   padding: 0;
   height: 100vh;
   width: 100vw;
   font-family: "Press Start 2P", monospace;
-  color: #000;
 }
 
 ::-webkit-scrollbar {
@@ -30,9 +32,23 @@ img {
   image-rendering: pixelated;
 }
 
+/* Oyunun kendisi (Ortadaki ekran) */
 .game-container {
-  width: 100vw;
-  height: 100vh;
+  background-image: url('./assets/bg_wood.png'); /* Ahşap arkaplanı buraya taşıdık */
+  background-size: cover;
+  background-position: center;
+  
+  /* Boyut ve Oran Ayarları */
+  height: 85vh; /* Yüksekliği ekranın %85'ine sabitledik */
+  aspect-ratio: 16 / 9; /* Sahnenin genişlik/yükseklik oranını korur */
+  max-width: 95vw; /* Dar ekranlarda taşmayı önler */
+  
+  position: relative;
+  overflow: hidden;
+  
+  /* Çerçeve (İsteğe bağlı, retro bir derinlik katar) */
+  border: 4px solid #222; 
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
 }
 
 .fade-in {

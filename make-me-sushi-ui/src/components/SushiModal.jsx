@@ -18,7 +18,7 @@ export default function SushiModal({
                 className="sushi-card" 
                 onClick={() => {
                   setTargetSushi(sushi); 
-                  setTimeLeft(sushi.requiredFocusTime * 60); 
+                  setTimeLeft(1 * 5); 
                   setShowSushiSelector(false); 
                   setIsTimerRunning(true); 
                 }}

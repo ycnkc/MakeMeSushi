@@ -14,7 +14,9 @@ namespace MakeMeSushi.API.Data
         public DbSet<Inventory> Inventory { get; set; }
         public DbSet<Sushi> Sushis { get; set; }
         public DbSet<CompletedSushi> CompletedSushis { get; set; }
- 
+        public DbSet<UserUnlockedSushi> UserUnlockedSushis { get; set; }
+        public DbSet<Decoration> Decorations { get; set; }
+        public DbSet<UserDecoration> UserDecorations { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder) 
         {
             modelBuilder.Entity<PomodoroSession>()

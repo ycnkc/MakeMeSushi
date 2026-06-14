@@ -1,15 +1,17 @@
 /* src/components/Modals.css */
+
 .menu-overlay {
-  position: absolute;
+  /* DÜZELTME: absolute yerine fixed kullanarak modalı tarayıcıya kilitledik */
+  position: fixed; 
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.6); 
+  background-color: rgba(0, 0, 0, 0.7); 
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 100; 
+  z-index: 9999; /* Z-index'i yükselttik ki hiçbir şeyin altında kalmasın */
 }
 
 /* Pause Menu Modal */
@@ -21,6 +23,7 @@
   flex-direction: column;
   align-items: center;
   gap: 20px;
+  background-size: 100% 100%;
   box-shadow: 8px 8px 0px rgba(0,0,0,0.5); 
 }
 
@@ -41,34 +44,41 @@
   width: 220px; 
 }
 
-/* Sushi Selector Modal */
+/* Sushi Selector Modal - Biraz daha kompakt */
 .sushi-modal {
   background-color: #fcebc4; 
   border: 4px solid #000;
-  padding: 20px 30px;
+  /* padding'i 20px 30px'ten 15px 20px'e düşürdük */
+  padding: 15px 20px; 
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 15px;
-  box-shadow: 8px 8px 0px rgba(0,0,0,0.5); 
-  max-height: 85vh; 
-  overflow-y: auto;
+  /* gap'i 15px'ten 10px'e düşürdük */
+  gap: 50px; 
+  background-size: 100% 100%;
+  box-shadow: 6px 6px 0px rgba(0,0,0,0.5); 
+  
+  /* Daha küçük sınırlar */
+  max-height: 70vh; 
+  max-width: 500px; /* Sabit bir genişlik sınırı koyduk */
+  overflow-y: none;
 }
 
 .sushi-modal h2 {
   margin: 0;
-  font-size: 20px;
+  font-size: 16px; /* Başlığı biraz küçülttük */
   color: #000;
   border-bottom: 2px solid #000;
-  padding-bottom: 10px;
+  padding-bottom: 5px;
 }
 
 .sushi-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr); 
-  gap: 15px;
+  /* gap'i düşürdük */
+  gap: 10px; 
   width: 100%;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 
 .sushi-card {
@@ -76,27 +86,30 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.8);
   border: 2px solid #000;
-  padding: 10px;
+  /* padding'i düşürdük */
+  padding: 5px; 
   cursor: pointer;
-  transition: transform 0.1s, background-color 0.1s;
+  transition: transform 0.1s;
 }
 
 .sushi-card:hover {
   background-color: #ffe082;
-  transform: scale(1.05);
+  transform: scale(1.02);
 }
 
 .sushi-card img {
-  width: 60px; 
+  /* İkonları 60px'ten 45px'e düşürdük */
+  width: 45px; 
   height: auto;
-  margin-bottom: 10px;
-  filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.2));
+  margin-bottom: 5px;
+  filter: drop-shadow(1px 1px 0px rgba(0,0,0,0.2));
+  image-rendering: pixelated;
 }
 
 .sushi-card p {
-  font-size: 9px;
+  font-size: 8px; /* Yazıyı biraz daha ufak ve şık yaptık */
   margin: 0;
   text-align: center;
   color: #000;

@@ -11,6 +11,7 @@ export default function PauseMenu({ setIsMenuOpen, setIsTimerRunning, setStage, 
           <button className="pixel-btn" onClick={() => alert("Your Sushi Collection: 🍣 🍱 (Coming Soon!)")}>SUSHIS</button>
           <button className="pixel-btn" onClick={() => alert("Total Focus Time: 00:00")}>STATS</button>
           <button className="pixel-btn logout-btn" onClick={() => {
+            localStorage.removeItem('token');
             setIsMenuOpen(false);
             setIsTimerRunning(false); 
             setStage('start'); 
