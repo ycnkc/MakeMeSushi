@@ -42,6 +42,9 @@ function App() {
   const [sushiMenu, setSushiMenu] = useState([]); 
   const [isMenuLoading, setIsMenuLoading] = useState(true); 
 
+
+  const [unlockedSushiIds, setUnlockedSushiIds] = useState([1, 2]);
+const [showStore, setShowStore] = useState(false);
   // API'den Sushileri Çekme
   useEffect(() => {
     const fetchSushis = async () => {
@@ -190,6 +193,11 @@ const handleLogin = async () => {
           targetSushi={targetSushi} setTargetSushi={setTargetSushi} showSushiSelector={showSushiSelector} 
           setShowSushiSelector={setShowSushiSelector} isNewUser={isNewUser} username={username} 
           sushiMenu={sushiMenu} isMenuLoading={isMenuLoading} sushiImages={SUSHI_IMAGES} setTimeLeft={setTimeLeft}
+          showStore={showStore}
+          setShowStore={setShowStore}
+          unlockedSushiIds={unlockedSushiIds}
+          setUnlockedSushiIds={setUnlockedSushiIds}
+          setCoins={setCoins}
         />
       )}
     </div>

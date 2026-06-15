@@ -1,7 +1,23 @@
 /* src/components/Modals.css */
 
+/* =========================================================
+   ORTAK ANİMASYONLAR (ANIMATIONS)
+========================================================= */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes popInElastic {
+  0% { transform: scale(0.5); opacity: 0; }
+  70% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* =========================================================
+   GENEL OVERLAY (ARKA PLAN KARARTMASI)
+========================================================= */
 .menu-overlay {
-  /* DÜZELTME: absolute yerine fixed kullanarak modalı tarayıcıya kilitledik */
   position: fixed; 
   top: 0;
   left: 0;
@@ -11,10 +27,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999; /* Z-index'i yükselttik ki hiçbir şeyin altında kalmasın */
+  z-index: 9999; 
+  animation: fadeIn 0.2s ease-out; /* Karararak gelme efekti */
 }
 
-/* Pause Menu Modal */
+/* =========================================================
+   PAUSE MENU MODAL
+========================================================= */
 .menu-modal {
   background-color: #fcebc4; 
   border: 4px solid #000;
@@ -25,6 +44,7 @@
   gap: 20px;
   background-size: 100% 100%;
   box-shadow: 8px 8px 0px rgba(0,0,0,0.5); 
+  animation: popInElastic 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; /* Zıplama animasyonu */
 }
 
 .menu-modal h2 {
@@ -44,29 +64,28 @@
   width: 220px; 
 }
 
-/* Sushi Selector Modal - Biraz daha kompakt */
+/* =========================================================
+   SUSHI SELECTOR MODAL
+========================================================= */
 .sushi-modal {
   background-color: #fcebc4; 
   border: 4px solid #000;
-  /* padding'i 20px 30px'ten 15px 20px'e düşürdük */
   padding: 15px 20px; 
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* gap'i 15px'ten 10px'e düşürdük */
   gap: 50px; 
   background-size: 100% 100%;
   box-shadow: 6px 6px 0px rgba(0,0,0,0.5); 
-  
-  /* Daha küçük sınırlar */
   max-height: 70vh; 
-  max-width: 500px; /* Sabit bir genişlik sınırı koyduk */
+  max-width: 500px; 
   overflow-y: none;
+  animation: popInElastic 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; /* Zıplama animasyonu */
 }
 
 .sushi-modal h2 {
   margin: 0;
-  font-size: 16px; /* Başlığı biraz küçülttük */
+  font-size: 16px; 
   color: #000;
   border-bottom: 2px solid #000;
   padding-bottom: 5px;
@@ -75,7 +94,6 @@
 .sushi-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr); 
-  /* gap'i düşürdük */
   gap: 10px; 
   width: 100%;
   margin-bottom: 5px;
@@ -88,7 +106,6 @@
   justify-content: center;
   background: rgba(255, 255, 255, 0.8);
   border: 2px solid #000;
-  /* padding'i düşürdük */
   padding: 5px; 
   cursor: pointer;
   transition: transform 0.1s;
@@ -100,7 +117,6 @@
 }
 
 .sushi-card img {
-  /* İkonları 60px'ten 45px'e düşürdük */
   width: 45px; 
   height: auto;
   margin-bottom: 5px;
@@ -109,8 +125,288 @@
 }
 
 .sushi-card p {
-  font-size: 8px; /* Yazıyı biraz daha ufak ve şık yaptık */
+  font-size: 8px; 
   margin: 0;
   text-align: center;
   color: #000;
+}
+
+/* Seçim ekranında kilitli olan suşi kartı */
+.sushi-card-locked {
+  cursor: not-allowed !important;
+  background-color: #e0e0e0 !important;
+  border-color: #757575 !important;
+  opacity: 0.7;
+}
+
+.sushi-card-locked:hover {
+  transform: none !important;
+  background-color: #e0e0e0 !important;
+}
+
+.lock-badge {
+  font-size: 7px;
+  color: #d32f2f;
+  font-weight: bold;
+  margin-top: 3px;
+}
+
+/* =========================================================
+   PREMIUM STORE MODAL AESTHETICS (YATAY LİSTE)
+========================================================= */
+
+.store-modal {
+  background-color: #fde8c4; 
+  border: 4px solid #2d2a2e; 
+  border-radius: 8px; 
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 12px 12px 0px rgba(0,0,0,0.4); 
+  width: 460px; /* Açıklamaların sığması için mağazayı genişlettik */
+  max-height: 85vh; 
+  animation: popInElastic 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
+}
+
+/* --- ÜST BİLGİ VE SEKMELER --- */
+.store-header {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+  border-bottom: 4px dotted #c9a87c; 
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
+
+.store-header h2 {
+  margin: 0;
+  font-size: 22px;
+  color: #2d2a2e;
+  text-shadow: 1px 1px 0px #fff; 
+}
+
+.store-coins-display {
+  background: #fff;
+  border: 3px solid #2d2a2e;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-weight: bold;
+  font-size: 14px;
+  color: #2d2a2e;
+  box-shadow: 3px 3px 0px #c9a87c; 
+}
+
+.store-tabs {
+  display: flex;
+  width: 100%;
+  gap: 5px;
+  margin-bottom: 15px;
+  border-bottom: 4px solid #2d2a2e; 
+}
+
+.tab-btn {
+  flex: 1;
+  background-color: #e5cba3; 
+  border: 4px solid #2d2a2e;
+  border-bottom: none; 
+  border-radius: 8px 8px 0 0; 
+  padding: 10px;
+  font-family: inherit;
+  font-weight: bold;
+  font-size: 13px;
+  color: #7a6b58;
+  cursor: pointer;
+  transform: translateY(4px); 
+  transition: all 0.1s ease-in-out;
+}
+
+.tab-btn:hover { background-color: #eed4b1; color: #2d2a2e; }
+.tab-btn.active {
+  background-color: #fde8c4; 
+  color: #2d2a2e;
+  transform: translateY(0px); 
+  padding-bottom: 14px; 
+  margin-bottom: -4px; 
+}
+
+/* --- İÇERİK VE YATAY LİSTE --- */
+.store-content-area {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto; 
+  padding-right: 8px; 
+}
+
+.store-content-area::-webkit-scrollbar { width: 8px; }
+.store-content-area::-webkit-scrollbar-track { background: #e5cba3; border-radius: 4px; }
+.store-content-area::-webkit-scrollbar-thumb { background: #2d2a2e; border-radius: 4px; }
+
+.store-desc-main {
+  font-size: 11px;
+  color: #8c7a65;
+  margin: 0 0 15px 0;
+  text-align: center;
+  font-weight: bold;
+}
+
+/* Grid yerine List yapısı */
+.store-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+/* YATAY SATIR TASARIMI */
+.store-list-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background: #fffdf9; 
+  border: 3px solid #2d2a2e;
+  border-radius: 8px;
+  padding: 10px 15px;
+  box-shadow: 4px 4px 0px rgba(0,0,0,0.15); 
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+
+/* 1. Sütun: Resim */
+.item-icon-wrapper {
+  flex-shrink: 0;
+  width: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 15px;
+}
+
+.store-sushi-img {
+  width: 45px !important;
+  height: 45px !important;
+  object-fit: contain !important;
+  filter: drop-shadow(2px 3px 0px rgba(0,0,0,0.2));
+  image-rendering: pixelated;
+  transition: transform 0.2s; 
+}
+
+.store-list-item:hover .store-sushi-img { transform: scale(1.3); }
+
+.decor-icon {
+  font-size: 35px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(2px 3px 0px rgba(0,0,0,0.2));
+}
+
+.locked-img {
+  width: 60px !important;
+  filter: grayscale(0%) brightness(100%)  !important; 
+}
+
+/* 2. Sütun: Bilgi ve Açıklama */
+.item-info-wrapper {
+  flex-grow: 1; /* Ortadaki yazılar kalan tüm boşluğu kaplar, butonu sağa iter */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.item-name {
+  font-size: 13px;
+  margin: 0 0 4px 0;
+  font-weight: 900;
+  color: #2d2a2e;
+}
+
+.item-desc {
+  font-size: 10px;
+  margin: 0;
+  color: #8c7a65;
+  line-height: 1.3;
+}
+
+/* 3. Sütun: Buton */
+.item-action-wrapper {
+  flex-shrink: 0;
+  margin-left: 10px;
+}
+
+.buy-btn {
+  background-color: #ff9e7d; 
+  color: #fff;
+  border: 3px solid #2d2a2e;
+  border-bottom: 5px solid #2d2a2e; 
+  border-radius: 6px;
+  padding: 8px 15px;
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: bold;
+  cursor: pointer;
+  text-shadow: 1px 1px 0px #000; 
+  transition: all 0.1s;
+  min-width: 80px; /* Butonların genişliği aynı olsun */
+}
+
+.buy-btn:hover:not(:disabled) { background-color: #ff855f; }
+.buy-btn:active:not(:disabled) {
+  border-bottom: 3px solid #2d2a2e;
+  transform: translateY(2px);
+}
+
+.empty-store-msg {
+  text-align: center;
+  font-weight: bold;
+  font-size: 14px;
+  color: #8c7a65;
+  margin: 40px 0;
+}
+
+/* =========================================================
+   YENİ: OYUN İÇİ BİLDİRİM (CUSTOM ALERT) TASARIMI
+========================================================= */
+
+.custom-alert-overlay {
+  position: absolute; /* Modala göre hizalanır */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(253, 232, 196, 0.85); /* Mağazanın zemin rengi, yarı saydam */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  backdrop-filter: blur(2px); /* Arkadaki yazıları ve sushileri hafif bulanıklaştırır */
+  animation: fadeIn 0.2s ease-out;
+}
+
+.custom-alert-box {
+  background: #fffdf9;
+  border: 4px solid #2d2a2e;
+  border-radius: 8px;
+  padding: 25px 20px;
+  text-align: center;
+  width: 75%;
+  box-shadow: 8px 8px 0px rgba(0,0,0,0.3);
+  animation: popInElastic 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.custom-alert-box h3 {
+  margin: 0 0 10px 0;
+  font-size: 22px;
+  font-weight: 900;
+  text-shadow: 1px 1px 0px #ccc;
+}
+
+.custom-alert-box p {
+  font-size: 13px;
+  font-weight: bold;
+  color: #2d2a2e;
+  margin: 0 0 20px 0;
+  line-height: 1.5;
 }
