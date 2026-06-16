@@ -878,3 +878,75 @@
   font-weight: 900;
   color: #2d2a2e;
 }
+
+/* Sol Üstteki Plak Butonu */
+.music-trigger {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  cursor: pointer;
+  z-index: 90;
+  transition: transform 0.2s;
+}
+
+.cd-icon {
+  width: 55px;
+  height: 55px;
+  image-rendering: pixelated;
+  filter: drop-shadow(3px 3px 0px rgba(0,0,0,0.2));
+}
+
+.music-trigger:hover {
+  transform: scale(1.1) rotate(15deg);
+}
+
+/* Modal İçindeki Liste */
+.music-modal-box {
+  background-size: 100% 100%;
+  padding: 40px;
+  width: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.music-selection-list {
+  display: flex;
+  flex-direction: column;
+  color: #2d2a2e;
+  gap: 12px;
+  width: 100%;
+  margin: 20px 0;
+}
+
+.music-track-btn {
+  background: url('../assets/textbox.png');
+  background-size: 100% 100%;
+  border: none;
+  padding: 15px;
+  font-weight: 900;
+  cursor: pointer;
+  text-align: left;
+  image-rendering: pixelated;
+  transition: transform 0.1s;
+}
+
+.music-track-btn:hover {
+  transform: translateX(5px);
+}
+
+.active-track {
+  color: #4caf50; /* Çalan şarkı yeşil görünsün */
+  filter: brightness(1.1);
+}
+
+.music-divider {
+  border: none;
+  border-top: 2px dashed #5a4a3a;
+  margin: 10px 0;
+}
+
+.stop-btn {
+  color: white;
+  text-shadow: 2px 2px 0px #000;
+}

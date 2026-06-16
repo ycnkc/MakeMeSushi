@@ -11,6 +11,10 @@ import SushiModal from './SushiModal';
 import StoreModal from './StoreModal';
 import StatsModal from './StatsModal';
 import dingSound from '../assets/ding.mp3';
+import lofi1 from '../assets/lofi1.mp3';
+import lofi2 from '../assets/lofi2.mp3';
+import cdImg from '../assets/cd.png'; 
+import MusicPlayer from "./MusicPlayer";
 import './Dashboard.css';
 
 export default function Dashboard({
@@ -53,7 +57,7 @@ export default function Dashboard({
   const [displayedText, setDisplayedText] = useState('');
   const fullText = `Preparing ${targetSushi ? targetSushi.name : ''}...`;
 const [showStats, setShowStats] = useState(false);
-
+const [showMusicModal, setShowMusicModal] = useState(false);
   
 useEffect(() => {
   if (!isTimerRunning || !targetSushi) {
@@ -191,7 +195,16 @@ useEffect(() => {
         );
       })}
 
-      {/* Sipariş kağıdı HUD paneli */}
+<div className="music-trigger" onClick={() => setShowMusicModal(true)}>
+        <img src={cdImg} alt="Music" className="cd-icon" />
+      </div>
+
+      {/* MÜZİK ÇALAR VE MODAL SİSTEMİ */}
+      <MusicPlayer 
+        musicFiles={[lofi1, lofi2]} 
+        showMusicModal={showMusicModal} 
+        setShowMusicModal={setShowMusicModal} 
+      />      {/* Sipariş kağıdı HUD paneli */}
       <div className="hud-order-paper fade-in" style={{ zIndex: 10 }}>
         <h3 className="order-title">ORDER</h3>
 
