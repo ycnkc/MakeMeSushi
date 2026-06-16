@@ -135,7 +135,7 @@
   display: flex;
   flex-direction: row; 
   align-items: flex-end; 
-  gap: 15px;
+  gap: 10px;
   margin-bottom: 25px; 
 }
 
@@ -295,20 +295,20 @@
 
 #text-box {
   width: 300px;
-  height: auto;
+  height: 150px;
   image-rendering: pixelated;
   filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.3));
 }
 
-.intro-text {
+.introduction-text {
   position: absolute;
-  font-size: 11px;
+  font-size: 10px;
   line-height: 1.5;
   color: #000;
   text-align: center;
   width: 80%;
   margin: 0;
-  top: 45%;
+  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
 }

@@ -121,5 +121,34 @@ namespace MakeMeSushi.API.Controllers
 
             return Ok(new { Message = "Dekorasyon satın alındı!", NewBalance = user.TotalCoins });
         }
+
+        [HttpGet]
+    public async Task<ActionResult<IEnumerable<Decoration>>> GetDecorations()
+    {
+        // Veritabanındaki Decorations tablosundan verileri çek
+        return await _context.Decorations.ToListAsync();
     }
+
+    [HttpPost("toggle-decoration/{decorationId}")]
+public async Task<ActionResult> ToggleDecoration(int decorationId)
+{
+    var username = User.Identity?.Name;
+    var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+    
+    // Kullanıcının bu dekorasyona sahip olup olmadığını kontrol et
+    var userDecor = await _context.UserDecorations
+        .FirstOrDefaultAsync(u => u.UserId == user.Id && u.DecorationId == decorationId);
+    
+    if (userDecor == null) return BadRequest("Bu eşyaya sahip değilsiniz.");
+
+    // Durumu tersine çevir
+    userDecor.IsEquipped = !userDecor.IsEquipped;
+    
+    await _context.SaveChangesAsync();
+
+    return Ok(new { IsEquipped = userDecor.IsEquipped });
+}
+    }
+
+    
 }

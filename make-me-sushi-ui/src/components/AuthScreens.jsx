@@ -45,7 +45,7 @@ export function LoginScreen({ username, password, setPassword, handleLogin }) {
         <div className="text-box-wrapper">
           <img id="text-box" src={textBox} alt="Speech Bubble" />
           <h2 className="intro-text">
-            Oh hello {username.toUpperCase()}. <br/>I didn't recognize you for a second there.
+            Oh hello {username}. <br/>I didn't recognize you for a second there.
           </h2>
         </div>
       </div>

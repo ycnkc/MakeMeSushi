@@ -3,140 +3,138 @@ import React, { useState } from 'react';
 import './Modals.css';
 
 export default function StoreModal({ 
-  sushiMenu, 
-  sushiImages, 
-  coins, 
-  setCoins, 
-  unlockedSushiIds, 
-  setUnlockedSushiIds, 
+  sushiMenu, decorationsMenu, sushiImages, decorImages, 
+  coins, setCoins, unlockedSushiIds, setUnlockedSushiIds,
+  unlockedDecorationIds, setUnlockedDecorationIds, 
+  equippedDecorationIds = [], setEquippedDecorationIds, // YENİ: Takılı eşyalar prop'u
   setShowStore 
 }) {
   const [activeTab, setActiveTab] = useState('sushi');
-  // YENİ: Tarayıcı alert() yerine kendi bildirim ekranımızı kontrol edeceğimiz state
   const [notification, setNotification] = useState(null); 
+  const [isClosing, setIsClosing] = useState(false);
 
-  // --- SUSHİ (RECIPES) MANTIĞI ---
-  const lockedSushis = sushiMenu.filter(sushi => !unlockedSushiIds.includes(sushi.id));
+  // --- KAPANIŞ ANİMASYONU ---
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => setShowStore(false), 250);
+  };
 
-  const handleBuySushi = (sushi) => {
-    const price = sushi.price || sushi.Price || 100; 
+  // --- SUSHİ SATIN ALMA ---
+  const handleBuySushi = async (sushi) => {
     const sushiId = sushi.id || sushi.Id;
+    const price = sushi.price || sushi.Price || 100;
+    const token = localStorage.getItem('token')?.replace(/^"|"$/g, '');
 
-    if (Number(coins) >= Number(price)) {
-      setCoins(prev => Number(prev) - Number(price));
-      
-      setUnlockedSushiIds(prev => {
-        if (!prev.includes(sushiId)) return [...prev, sushiId];
-        return prev;
-      });
-      
-      // YENİ: alert() yerine estetik bildirim
-      setNotification({
-        type: 'success',
-        text: "You purchased a new recipe! Let's try it 🍣",
-        action: 'closeStore' // Buna basılınca mağazayı kapatıp denemeye gideceğiz
-      });
-    } else {
-      setNotification({
-        type: 'error',
-        text: `Not enough coins! You need ${price} 🪙`,
-        action: 'closeNotification'
-      });
+    if (Number(coins) < Number(price)) {
+      setNotification({ type: 'error', text: `Not enough coins!`, action: 'closeNotification' });
+      return;
     }
+
+    try {
+      const response = await fetch(`http://localhost:5008/api/Store/buy-sushi/${sushiId}`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setCoins(data.newBalance);
+        setUnlockedSushiIds(prev => [...prev, sushiId]);
+        setNotification({ type: 'success', text: `Unlocked ${sushi.name || sushi.Name}!`, action: 'closeNotification' });
+      }
+    } catch (err) { console.error(err); }
   };
 
-  // --- DEKORASYON (DECOR) MANTIĞI ---
-  const DUMMY_DECORATIONS = [
-    { id: 'dec1', name: 'Paper Lantern', price: 150, icon: '🏮', desc: 'Adds a warm, cozy glow to your shop.' },
-    { id: 'dec2', name: 'Bonsai Tree', price: 250, icon: '🌳', desc: 'A tiny tree for maximum zen vibes.' },
-    { id: 'dec3', name: 'Golden Maneki', price: 500, icon: '🐈', desc: 'Brings immense luck and wealthy customers!' },
-    { id: 'dec4', name: 'Katana Stand', price: 800, icon: '⚔️', desc: 'An honorable display piece for a true chef.' }
-  ];
+  // --- DEKORASYON SATIN ALMA ---
+  const handleBuyDecoration = async (decor) => {
+    const decorId = decor.id || decor.Id;
+    const price = decor.price || decor.Price;
+    const token = localStorage.getItem('token')?.replace(/^"|"$/g, '');
 
-  const handleBuyDecoration = (decor) => {
-    if (Number(coins) >= Number(decor.price)) {
-      setCoins(prev => Number(prev) - Number(decor.price));
-      setNotification({
-        type: 'success',
-        text: `You purchased ${decor.name}! Your shop looks cozier 🏮`,
-        action: 'closeNotification'
-      });
-    } else {
-      setNotification({
-        type: 'error',
-        text: `Not enough coins for ${decor.name}! 🪙`,
-        action: 'closeNotification'
-      });
+    if (Number(coins) < Number(price)) {
+      setNotification({ type: 'error', text: `Not enough coins!`, action: 'closeNotification' });
+      return;
     }
+
+    try {
+      const response = await fetch(`http://localhost:5008/api/Store/buy-decoration/${decorId}`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setCoins(data.newBalance);
+        setUnlockedDecorationIds(prev => [...prev, decorId]);
+        setNotification({ type: 'success', text: `Purchased ${decor.name || decor.Name}!`, action: 'closeNotification' });
+      }
+    } catch (err) { console.error(err); }
   };
 
-  // Bildirim butonuna tıklandığında ne olacağını belirleyen fonksiyon
-  const handleNotificationClick = () => {
-    if (notification.action === 'closeStore') {
-      setShowStore(false); // Yeni tarif alındıysa mağazayı kapatıp oyuna dön
-    } else {
-      setNotification(null); // Sadece bildirimi kapat
-    }
+  // --- DEKORASYON TAK/ÇIKAR (TOGGLE) ---
+  const handleToggleDecoration = async (decor) => {
+    const decorId = decor.id || decor.Id;
+    const token = localStorage.getItem('token')?.replace(/^"|"$/g, '');
+
+    try {
+      const response = await fetch(`http://localhost:5008/api/Store/toggle-decoration/${decorId}`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.isEquipped) {
+          setEquippedDecorationIds(prev => [...prev, decorId]); // Listeye ekle
+        } else {
+          setEquippedDecorationIds(prev => prev.filter(id => id !== decorId)); // Listeden çıkar
+        }
+      }
+    } catch (err) { console.error(err); }
   };
 
   return (
-    <div className="menu-overlay" onClick={() => setShowStore(false)}>
-      {/* inline CSS ile position: relative ekledik ki bildirim tam bu kutunun içine hapsolsun */}
-      <div className="store-modal fade-in" onClick={(e) => e.stopPropagation()} style={{ position: 'relative', overflow: 'hidden' }}>
+    <div className={`menu-overlay ${isClosing ? 'fade-out' : ''}`} onClick={handleClose}>
+      <div className={`store-modal ${isClosing ? 'pop-out' : 'fade-in'}`} onClick={(e) => e.stopPropagation()}>
         
-        {/* =======================================================
-            YENİ: ÖZEL BİLDİRİM (CUSTOM ALERT) OVERLAY EKRANI
-        ======================================================= */}
+        {/* --- BİLDİRİM EKRANI --- */}
         {notification && (
           <div className="custom-alert-overlay">
             <div className="custom-alert-box">
-              <h3 style={{ color: notification.type === 'error' ? '#d32f2f' : '#2e7d32' }}>
-                {notification.type === 'error' ? 'Oops!' : 'YAY!'}
-              </h3>
+              <h3>{notification.type === 'error' ? 'Oops!' : 'YAY!'}</h3>
               <p>{notification.text}</p>
-              <button className="buy-btn" onClick={handleNotificationClick}>
-                {notification.type === 'error' ? 'OK' : "LET'S GO"}
-              </button>
+              <button className="buy-btn" onClick={() => setNotification(null)}>OK</button>
             </div>
           </div>
         )}
 
         <div className="store-header">
           <h2>SUSHI BAR STORE</h2>
-          <div className="store-coins-display">🪙{coins}</div>
+          <div className="store-coins-display">🪙 {coins}</div>
         </div>
 
         <div className="store-tabs">
-          <button 
-            className={`tab-btn ${activeTab === 'sushi' ? 'active' : ''}`} 
-            onClick={() => setActiveTab('sushi')}
-          >
-            🍙 RECIPES
-          </button>
-          <button 
-            className={`tab-btn ${activeTab === 'decor' ? 'active' : ''}`} 
-            onClick={() => setActiveTab('decor')}
-          >
-            🏮 DECOR
-          </button>
+          <button className={`tab-btn ${activeTab === 'sushi' ? 'active' : ''}`} onClick={() => setActiveTab('sushi')}>🍙 RECIPES</button>
+          <button className={`tab-btn ${activeTab === 'decor' ? 'active' : ''}`} onClick={() => setActiveTab('decor')}>🏮 DECOR</button>
         </div>
 
-        {/* --- RECIPES (SUSHİ) İÇERİĞİ --- */}
+        {/* ==========================================
+            SUSHİ (RECIPES) SEKMESİ
+        ========================================== */}
         {activeTab === 'sushi' && (
           <div className="store-content-area">
-            <p className="store-desc-main">Unlock new recipes to expand your menu!</p>
-            {lockedSushis.length === 0 ? (
+            {sushiMenu.filter(s => !unlockedSushiIds.includes(s.id || s.Id)).length === 0 ? (
               <p className="empty-store-msg">🎉 You unlocked all recipes!</p>
             ) : (
               <div className="store-list">
-                {lockedSushis.map((sushi) => (
-                  <div key={sushi.id} className="store-list-item">
+                {sushiMenu.filter(s => !unlockedSushiIds.includes(s.id || s.Id)).map((sushi) => (
+                  <div key={sushi.id || sushi.Id} className="store-list-item">
                     <div className="item-icon-wrapper">
-                      <img src={sushiImages[sushi.imagePath]} alt={sushi.name} className="store-sushi-img locked-img" />
+                      <img src={sushiImages[sushi.imagePath || sushi.ImagePath]} alt={sushi.name} className="store-sushi-img" />
                     </div>
                     <div className="item-info-wrapper">
-                      <p className="item-name">{sushi.name.toUpperCase()}</p>
-                      <p className="item-desc">{sushi.description || 'A delicious classic recipe.'}</p>
+                      <p className="item-name">{(sushi.name || sushi.Name).toUpperCase()}</p>
+                      <p className="item-desc">{sushi.description || 'A delicious sushi recipe.'}</p>
                     </div>
                     <div className="item-action-wrapper">
                       <button className="buy-btn" onClick={() => handleBuySushi(sushi)}>
@@ -150,34 +148,58 @@ export default function StoreModal({
           </div>
         )}
 
-        {/* --- DECOR İÇERİĞİ --- */}
+        {/* ==========================================
+            DEKORASYON (DECOR) SEKMESİ
+        ========================================== */}
         {activeTab === 'decor' && (
           <div className="store-content-area">
-            <p className="store-desc-main">Decorate your shop to make it cozy!</p>
             <div className="store-list">
-              {DUMMY_DECORATIONS.map((decor) => (
-                <div key={decor.id} className="store-list-item">
-                  <div className="item-icon-wrapper">
-                    <div className="decor-icon">{decor.icon}</div>
+              {/* Dekorasyonların HEPSİNİ listeliyoruz ki takıp çıkarabilelim */}
+              {decorationsMenu?.map((decor) => {
+                const decorId = decor.id || decor.Id;
+                const isUnlocked = unlockedDecorationIds.includes(decorId);
+                const isEquipped = equippedDecorationIds.includes(decorId);
+
+                return (
+                  <div key={decorId} className="store-list-item">
+                    <div className="item-icon-wrapper">
+                      <img src={decorImages[decor.imagePath || decor.ImagePath]} alt={decor.name} className="decor-image-style" />
+                    </div>
+                    <div className="item-info-wrapper">
+                      <p className="item-name">{(decor.name || decor.Name).toUpperCase()}</p>
+                      <p className="item-desc">Type: {decor.type || decor.Type}</p>
+                    </div>
+                    <div className="item-action-wrapper">
+                      
+                      {!isUnlocked ? (
+                        // 1. DURUM: Satın Alınmamış
+                        <button className="buy-btn" onClick={() => handleBuyDecoration(decor)}>
+                          🪙 {decor.price || decor.Price}
+                        </button>
+                      ) : (
+                        // 2. DURUM: Satın Alınmış (TAK / ÇIKAR MANTIĞI)
+                        <button 
+                          className="buy-btn" 
+                          onClick={() => handleToggleDecoration(decor)}
+                          style={{ 
+                            backgroundColor: isEquipped ? '#f44336' : '#4caf50', 
+                            borderColor: '#2d2a2e',
+                            minWidth: '85px'
+                          }}
+                        >
+                          {isEquipped ? 'REMOVE' : 'EQUIP'}
+                        </button>
+                      )}
+
+                    </div>
                   </div>
-                  <div className="item-info-wrapper">
-                    <p className="item-name">{decor.name.toUpperCase()}</p>
-                    <p className="item-desc">{decor.desc}</p>
-                  </div>
-                  <div className="item-action-wrapper">
-                    <button className="buy-btn" onClick={() => handleBuyDecoration(decor)}>
-                      🪙 {decor.price}
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
-
-        <button className="pixel-btn cancel-order-btn" style={{ width: '100%', marginTop: '15px' }} onClick={() => setShowStore(false)}>
-          CLOSE STORE
-        </button>
+        
+        <button className="pixel-btn cancel-order-btn" onClick={handleClose}>CLOSE STORE</button>
       </div>
     </div>
   );

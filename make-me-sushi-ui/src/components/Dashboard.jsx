@@ -4,7 +4,6 @@ import timerClock from '../assets/clock.png';
 import textBox from '../assets/textbox.png';
 import manekiHappy from '../assets/maneki_happy.png';
 import coinIcon from '../assets/coin.png';
-import orderPaper from '../assets/paper.png';
 import PauseMenu from './PauseMenu';
 import SushiModal from './SushiModal';
 import StoreModal from './StoreModal';
@@ -34,16 +33,50 @@ export default function Dashboard({
   isMenuLoading, 
   sushiImages, 
   setTimeLeft,
-  showStore = false, // Varsayılan değerler ekleyerek çökmeleri önlüyoruz
+  showStore = false, 
   setShowStore = () => {},
   unlockedSushiIds = [], 
-  setUnlockedSushiIds = () => {}
+  setUnlockedSushiIds = () => {},
+  
+  // DEKORASYON PROPLARI
+  decorationsMenu = [],
+  decorImages = {},
+  unlockedDecorationIds = [],
+  setUnlockedDecorationIds = () => {},
+  equippedDecorationIds = [], // Varsayılan değer eklendi
+  setEquippedDecorationIds = () => {}
 }) {
+
+  // KRİTİK DEĞİŞİKLİK: Artık 'unlocked' (sahip olunan) listesine değil, 
+  // 'equipped' (takılı olan) listesine bakarak ekrana çiziyoruz.
+  const activeDecorations = decorationsMenu.filter(decor => 
+    equippedDecorationIds.includes(decor.id || decor.Id)
+  );
+
   return (
     <div className="fade-in dashboard-screen">
       
+      {/* =======================================================
+          TAKILI DEKORASYONLARIN EKRANA YERLEŞTİRİLMESİ
+      ======================================================= */}
+      {/* İleride CSS ile ".decor-type-floor", ".decor-type-wall" gibi sınıfları 
+          özelleştirip eşyaları dükkanın istediğin yerine dizebilirsin. */}
+      {activeDecorations.map(decor => {
+        const typeClass = (decor.type || decor.Type || 'general').toLowerCase();
+        
+        return (
+          <img 
+            key={decor.id || decor.Id}
+            src={decorImages[decor.imagePath || decor.ImagePath]} 
+            alt={decor.name || decor.Name}
+            className={`placed-decor-item decor-type-${typeClass}`}
+            style={{ position: 'absolute', zIndex: 1 }} // CSS ile düzenlenene kadar sol üste atar
+          />
+        );
+      })}
+
       {/* --- SİPARİŞ KAĞIDI HUD PANELİ --- */}
-      <div className="hud-order-paper fade-in">
+      <div className="hud-order-paper fade-in" style={{ zIndex: 10 }}>
         <h3 className="order-title">ORDER</h3>
 
         {/* MENÜ BUTONU */}
@@ -54,7 +87,7 @@ export default function Dashboard({
 
         <div className="order-item-divider"></div>
 
-        {/* COIN GÖSTERGESİ */}
+        {/* COIN GÖSTERGESİ (MAĞAZAYI AÇAR) */}
         <div className="order-item" onClick={() => setShowStore(true)} title="Open Store">
           <img src={coinIcon} alt="Coin" className="hud-coin-icon" />
           <span className="hud-coin-text">{coins}</span>
@@ -74,7 +107,7 @@ export default function Dashboard({
 
       {/* HAZIRLANAN SUSHİ ALANI */}
       {targetSushi && (
-        <div className="preparing-container fade-in">
+        <div className="preparing-container fade-in" style={{ zIndex: 5 }}>
            <img 
              src={sushiImages[targetSushi.imagePath]} 
              alt="Preparing" 
@@ -97,7 +130,7 @@ export default function Dashboard({
       )}
 
       {/* SAĞ SÜTUN: Saat ve Kedi */}
-      <div className="dashboard-right-column">
+      <div className="dashboard-right-column" style={{ zIndex: 5 }}>
           {dashboardMode === 'focus' && (
             <div className="dashboard-timer-section fade-in">
                 <div className="dashboard-clock-wrapper" onClick={() => {
@@ -117,9 +150,9 @@ export default function Dashboard({
             {dashboardMode === 'dialogue' && (
               <div className="text-box-wrapper fade-in-bubble">
                 <img id="text-box" src={textBox} alt="Speech Bubble" />
-                <h2 className="intro-text">
-                  {isNewUser ? "This is your counter. You can start working by clicking on the clock." : `Welcome back, ${username.toUpperCase()}! Ready to make some sushi?`}
-                  <br/><br/><span style={{fontSize: '10px', opacity: 0.6}}>(click to dismiss)</span>
+                <h2 className="introduction-text">
+                  {isNewUser ? "This is your counter. You can start working by clicking on the clock." : `Welcome back, ${username}! Ready to make some sushi?`}
+                  <br/><br/><span style={{fontSize: '8px', opacity: 0.6}}>(click to dismiss)</span>
                 </h2>
               </div>
             )}
@@ -151,6 +184,14 @@ export default function Dashboard({
           unlockedSushiIds={unlockedSushiIds} 
           setUnlockedSushiIds={setUnlockedSushiIds}
           setShowStore={setShowStore}
+          
+          // Mağazaya gönderilen dekorasyon propları
+          decorationsMenu={decorationsMenu}
+          decorImages={decorImages}
+          unlockedDecorationIds={unlockedDecorationIds}
+          setUnlockedDecorationIds={setUnlockedDecorationIds}
+          equippedDecorationIds={equippedDecorationIds}
+          setEquippedDecorationIds={setEquippedDecorationIds}
         />
       )}
 

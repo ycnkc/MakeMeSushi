@@ -77,4 +77,57 @@ public class UserController : ControllerBase
         });
     }
 
+    [HttpPost("buy-decoration/{decorationID}")]
+    [Authorize]
+    public async Task<ActionResult> BuyDecoration(int decorationID)
+    {
+        var username = User.Identity?.Name;
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+        var decor = await _context.Decorations.FindAsync(decorationID);
+
+        if (user == null) return NotFound("User not found");
+        if (decor == null) return NotFound("Decoration not found");
+
+        // Zaten satın alınmış mı kontrol et
+        var alreadyOwned = await _context.UserDecorations
+            .AnyAsync(ud => ud.UserId == user.Id && ud.DecorationId == decorationID);
+        
+        if (alreadyOwned) return BadRequest("Decoration already purchased.");
+
+        // Yeterli para var mı?
+        if (user.TotalCoins < decor.Price) return BadRequest("Not enough coins.");
+
+        // İşlemleri gerçekleştir
+        user.TotalCoins -= decor.Price;
+
+        var userDecor = new UserDecoration
+        {
+            UserId = user.Id,
+            DecorationId = decorationID,
+            IsEquipped = true // Varsayılan olarak alınınca takılı olsun
+        };
+
+        _context.UserDecorations.Add(userDecor);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { Message = "Decoration purchased!", NewBalance = user.TotalCoins });
+    }
+
+    [HttpGet("my-decorations")]
+    [Authorize]
+    public async Task<ActionResult<List<int>>> GetMyDecorations()
+    {
+        var username = User.Identity?.Name;
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+        
+        if (user == null) return NotFound("User not found");
+
+        var ownedDecorIds = await _context.UserDecorations
+            .Where(ud => ud.UserId == user.Id)
+            .Select(ud => ud.DecorationId)
+            .ToListAsync();
+
+        return Ok(ownedDecorIds); // [1, 3, 5] gibi sadece ID listesi döner
+    }
+
 }

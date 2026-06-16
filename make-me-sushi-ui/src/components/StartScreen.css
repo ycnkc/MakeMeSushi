@@ -5,7 +5,7 @@
   display: flex;
   align-items: center; 
   justify-content: flex-start; 
-  padding-left: 15vw; 
+  padding-left: 10vw; 
 }
 
 .start-content {
@@ -29,9 +29,10 @@
   transition: transform 0.1s;
 }
 
-.start-button-container:active {
-  transform: scale(0.95);
+.start-button-container:hover {
+  transform: translateY(-5px);
 }
+
 
 .button-image {
   display: block;

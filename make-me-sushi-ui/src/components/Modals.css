@@ -410,3 +410,17 @@
   margin: 0 0 20px 0;
   line-height: 1.5;
 }
+
+.decor-image-style {
+  width: 50px !important;
+  height: 50px !important;
+  object-fit: contain !important;
+  filter: drop-shadow(2px 3px 0px rgba(0,0,0,0.2)) !important;
+  image-rendering: pixelated;
+  transition: transform 0.2s;
+}
+
+/* Dekorasyon kartları üzerine gelince büyüme */
+.store-list-item:hover .decor-image-style {
+  transform: scale(1.3);
+}
