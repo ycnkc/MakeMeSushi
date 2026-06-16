@@ -1,4 +1,5 @@
 // src/components/SushiModal.jsx
+import React, { useState } from 'react';
 import './Modals.css';
 
 export default function SushiModal({ 
@@ -9,45 +10,93 @@ export default function SushiModal({
   setTimeLeft, 
   setShowSushiSelector, 
   setIsTimerRunning,
-  unlockedSushiIds // DÜZELTME 1: Eksik olan prop buraya eklendi!
+  unlockedSushiIds
 }) {
+  // Hangi suşiye baktığımızı takip eden state
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  if (!sushiMenu || sushiMenu.length === 0) return null;
+
+  // Sağ ve Sol ok fonksiyonları
+  const handleNext = () => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % sushiMenu.length);
+  };
+
+  const handlePrev = () => {
+    setCurrentIndex((prevIndex) => (prevIndex === 0 ? sushiMenu.length - 1 : prevIndex - 1));
+  };
+
+  // Şu an ekranda olan suşiyi seç
+  const currentSushi = sushiMenu[currentIndex];
+  
+  // Güvenlik değişkenleri
+  const sushiId = currentSushi.id || currentSushi.Id;
+  const sushiName = currentSushi.name || currentSushi.Name;
+  const imagePath = currentSushi.imagePath || currentSushi.ImagePath;
+  const coinReward = currentSushi.coinReward || currentSushi.CoinReward || 0;
+  const focusTime = currentSushi.requiredFocusTime || currentSushi.RequiredFocusTime || 25;
+  const isUnlocked = unlockedSushiIds.includes(sushiId);
+
   return (
     <div className="menu-overlay" onClick={() => setShowSushiSelector(false)}>
-      <div className="sushi-modal fade-in" onClick={(e) => e.stopPropagation()}>
-        <h2>WHAT TO MAKE?</h2>
+      
+      {/* Saydam ve esnek yeni modal kapsayıcımız */}
+      <div className="carousel-modal fade-in" onClick={(e) => e.stopPropagation()}>
         
-        {/* DÜZELTME 2: Yanlış yorum satırı formatı düzeltildi veya silindi */}
-        <div className="sushi-grid">
-          {sushiMenu.map((sushi) => {
-            const isUnlocked = unlockedSushiIds.includes(sushi.id);
+        <h2 className="carousel-title">WHAT TO MAKE?</h2>
 
-            return (
-              <div 
-                key={sushi.id} 
-                className={`sushi-card ${!isUnlocked ? 'sushi-card-locked' : ''}`}
-                onClick={() => {
-                  if (isUnlocked) {
-                    setTargetSushi(sushi);
-                    setTimeLeft(25 * 60); // Veya suşinin kendi süresi varsa o
+        <div className="carousel-container">
+          {/* SOL OK */}
+          <button className="carousel-arrow" onClick={handlePrev}>◀</button>
+
+          {/* MERKEZDEKİ SUŞİ (Süzülen Kısım) */}
+          <div className="carousel-center-focus">
+            <div className="carousel-image-wrapper">
+              <img 
+                src={sushiImages[imagePath]} 
+                alt={sushiName} 
+                className={`carousel-sushi-img ${isUnlocked ? 'floating-anim' : ''}`}
+                style={{ filter: isUnlocked ? 'none' : 'brightness(0) opacity(0.6)' }} // Kilitliyse tam bir gölge/siluet olur
+              />
+              {!isUnlocked && <div className="carousel-lock-icon">🔒</div>}
+            </div>
+
+            <div className="carousel-info-box">
+              <h3 className="carousel-sushi-name">{sushiName.toUpperCase()}</h3>
+              <div className="carousel-stats">
+                <span className="stat-coin">🪙 +{coinReward}</span>
+                <span className="stat-time">{focusTime} mins</span>
+              </div>
+            </div>
+
+            {/* BUTON ALANI */}
+            <div className="carousel-action-area">
+              {isUnlocked ? (
+                <button 
+                  className="pixel-btn prepare-btn"
+                  onClick={() => {
+                    setTargetSushi(currentSushi);
+                    setTimeLeft(focusTime * 60);
                     setShowSushiSelector(false);
                     setIsTimerRunning(true);
-                  }
-                }}
-              >
-                <img 
-                  src={sushiImages[sushi.imagePath]} 
-                  alt={sushi.name} 
-                  style={{ filter: isUnlocked ? 'none' : 'brightness(0.2) grayscale(1)' }} // Kilitliyse siyah siluet yapma hilesi
-                />
-                <p>{sushi.name}</p>
-                {!isUnlocked && <span className="lock-badge">🔒 LOCKED</span>}
-              </div>
-            );
-          })}
+                  }}
+                >
+                  PREPARE
+                </button>
+              ) : (
+                <button className="pixel-btn locked-btn" disabled>
+                  LOCKED
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* SAĞ OK */}
+          <button className="carousel-arrow" onClick={handleNext}>▶</button>
         </div>
         
-        <button className="pixel-btn logout-btn" onClick={() => setShowSushiSelector(false)}>
-          CANCEL
+        <button className="carousel-close-text" onClick={() => setShowSushiSelector(false)}>
+          [ CLICK HERE TO CANCEL ]
         </button>
       </div>
     </div>

@@ -72,72 +72,59 @@ function App() {
 
 
 // App.jsx içindeki useEffect bloğunu bu şekilde güncelle
-useEffect(() => {
-  const fetchAllData = async () => {
-  try {
-    const token = localStorage.getItem('token')?.replace(/^"|"$/g, '');
-    const headers = token ? { 
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json' 
-    } : {};
+// --- VERİLERİ YÜKLEME ---
+  useEffect(() => {
+    const fetchAllData = async () => {
+      try {
+        const token = localStorage.getItem('token')?.replace(/^"|"$/g, '');
+        const headers = { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json' 
+        };
 
-    const [sushiRes, decorRes, userDecorRes] = await Promise.all([
-      fetch('http://localhost:5008/api/Store/sushis', { headers }),
-      fetch('http://localhost:5008/api/Store', { headers }),
-      token ? fetch('http://localhost:5008/api/User/my-decorations', { headers }) : Promise.resolve({ ok: false })
-    ]);
+        const [sushiRes, decorRes, userDecorRes, statsRes] = await Promise.all([
+          fetch('http://localhost:5008/api/Store/sushis', { headers }),
+          fetch('http://localhost:5008/api/Store', { headers }),
+          fetch('http://localhost:5008/api/User/my-decorations', { headers }),
+          fetch('http://localhost:5008/api/User/stats', { headers })
+        ]);
 
-    // 1. SUSHİLERİ OKUMA VE KAYDEDİLENLERİ LİSTEYE EKLEME
-    if (sushiRes.ok) {
-      const sData = await sushiRes.json();
-      setSushiMenu(sData);
-      
-      // Backend'den IsUnlocked: true olarak gelenlerin ID'lerini topla
-      const unlockedIds = sData
-        .filter(s => s.isUnlocked || s.IsUnlocked)
-        .map(s => s.id || s.Id);
-        
-      // Başlangıçtaki [1, 2] ID'leri ile backend'den gelenleri birleştir (Tekrar edenleri sil)
-      setUnlockedSushiIds(prev => [...new Set([...prev, ...unlockedIds])]);
-    }
+        // 1. SUSHİLER
+        if (sushiRes.ok) {
+          const sData = await sushiRes.json();
+          setSushiMenu(sData);
+          const unlockedIds = sData.filter(s => s.isUnlocked || s.IsUnlocked).map(s => s.id || s.Id);
+          setUnlockedSushiIds(prev => [...new Set([...prev, ...unlockedIds])]);
+        }
 
-    // 2. DEKORASYON MENÜSÜNÜ OKUMA
-    if (decorRes.ok) setDecorationsMenu(await decorRes.json());
+        // 2. DEKORASYON MENÜSÜ
+        if (decorRes.ok) setDecorationsMenu(await decorRes.json());
 
-    // 3. KULLANICI DEKORASYONLARINI OKUMA (TAKILI OLANLARI AYIRMA)
-    if (userDecorRes.ok) {
-      const uData = await userDecorRes.json();
-      
-      // uData artık şöyle geliyor: [{ decorationId: 3, isEquipped: true }, ...]
-      if (uData.length > 0 && typeof uData[0] === 'object') {
-        // Satın alınanların listesi
-        setUnlockedDecorationIds(uData.map(d => d.decorationId || d.DecorationId));
-        
-        // Takılı olanların listesi (IsEquipped == true olanlar)
-        setEquippedDecorationIds(
-          uData.filter(d => d.isEquipped || d.IsEquipped)
-               .map(d => d.decorationId || d.DecorationId)
-        );
-      } else {
-         // Eski sistemden (sadece ID) geliyorsa çökmemesi için güvenlik önlemi
-         setUnlockedDecorationIds(uData);
-      }
-    }
+        // 3. KULLANICININ DEKORASYONLARI
+        if (userDecorRes.ok) {
+          const uData = await userDecorRes.json();
+          if (uData.length > 0 && typeof uData[0] === 'object') {
+            setUnlockedDecorationIds(uData.map(d => d.decorationId || d.DecorationId));
+            setEquippedDecorationIds(uData.filter(d => d.isEquipped || d.IsEquipped).map(d => d.decorationId || d.DecorationId));
+          }
+        }
 
-    // 4. KULLANICI COINLERİNİ OKUMA
-    if (token) {
-      const statsRes = await fetch('http://localhost:5008/api/User/stats', { headers });
-      if (statsRes.ok) {
+        // 4. KULLANICI COINLERİ
+        if (statsRes.ok) {
           const statsData = await statsRes.json();
           setCoins(statsData.currentCoins);
-      }
+        }
+          
+      } catch (error) { console.error("Veri yükleme hatası:", error); }
+      finally { setIsMenuLoading(false); }
+    };
+
+    // DİKKAT: Verileri artık sayfa ilk açıldığında değil,
+    // sadece kullanıcı giriş yapıp "dashboard" ekranına düştüğünde çekiyoruz!
+    if (stage === 'dashboard') {
+      fetchAllData();
     }
-      
-  } catch (error) { console.error("Veri yükleme hatası:", error); }
-  finally { setIsMenuLoading(false); }
-};
-  fetchAllData();
-}, []);
+  }, [stage]); // "stage" state'i değiştiğinde React bu bloğu tetikler
 
   // --- TIMER MANTIĞI ---
   useEffect(() => {
@@ -173,14 +160,25 @@ useEffect(() => {
     } catch (error) { alert("Backend Error"); }
   };
 
-  const handleRegister = async () => {
+ const handleRegister = async () => {
     try {
-      const response = await fetch('http://localhost:5008/api/User/register', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+      const response = await fetch('http://localhost:5008/api/Auth/register', {
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: username.trim(), passwordHash: password })
       });
-      if (response.ok) { setIsNewUser(true); setStage('dashboard'); } 
-    } catch (error) { console.error(error); }
+      
+      if (response.ok) { 
+        setIsNewUser(true); 
+        // KAYIT BAŞARILIYSA SESSİZCE LOGİN YAP VE TOKEN'I AL:
+        await handleLogin(); 
+      } else {
+        const errorText = await response.text();
+        alert("Kayıt Başarısız: " + errorText);
+      }
+    } catch (error) { 
+      console.error(error); 
+    }
   };
 
   const handleLogin = async () => {

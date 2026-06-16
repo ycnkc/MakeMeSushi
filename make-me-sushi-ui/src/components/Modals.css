@@ -14,21 +14,28 @@
   100% { transform: scale(1); opacity: 1; }
 }
 
+/* Suşi için süzülme animasyonu */
+@keyframes floatGentle {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+  100% { transform: translateY(0px); }
+}
+
 /* =========================================================
    GENEL OVERLAY (ARKA PLAN KARARTMASI)
 ========================================================= */
 .menu-overlay {
-  position: fixed; 
+  position: absolute; /* DİKKAT: 'fixed' yerine 'absolute' yaptık */
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.7); 
+  width: 100%; /* '100vw' yerine '100%' yaptık ki sadece kutuyu kaplasın */
+  height: 100%; /* '100vh' yerine '100%' yaptık */
+  background-color: rgba(0, 0, 0, 0.85); 
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999; 
-  animation: fadeIn 0.2s ease-out; /* Karararak gelme efekti */
+  animation: fadeIn 0.2s ease-out;
 }
 
 /* =========================================================
@@ -44,7 +51,7 @@
   gap: 20px;
   background-size: 100% 100%;
   box-shadow: 8px 8px 0px rgba(0,0,0,0.5); 
-  animation: popInElastic 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; /* Zıplama animasyonu */
+  animation: popInElastic 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
 .menu-modal h2 {
@@ -65,96 +72,157 @@
 }
 
 /* =========================================================
-   SUSHI SELECTOR MODAL
+   YENİ: CAROUSEL (SÜZÜLEN) SUSHI SELECTOR 
 ========================================================= */
-.sushi-modal {
-  background-color: #fcebc4; 
-  border: 4px solid #000;
-  padding: 15px 20px; 
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 50px; 
-  background-size: 100% 100%;
-  box-shadow: 6px 6px 0px rgba(0,0,0,0.5); 
-  max-height: 70vh; 
-  max-width: 500px; 
-  overflow-y: none;
-  animation: popInElastic 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; /* Zıplama animasyonu */
-}
-
-.sushi-modal h2 {
-  margin: 0;
-  font-size: 16px; 
-  color: #000;
-  border-bottom: 2px solid #000;
-  padding-bottom: 5px;
-}
-
-.sushi-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); 
-  gap: 10px; 
-  width: 100%;
-  margin-bottom: 5px;
-}
-
-.sushi-card {
+.carousel-modal {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.8);
-  border: 2px solid #000;
-  padding: 5px; 
-  cursor: pointer;
-  transition: transform 0.1s;
+  gap: 20px;
+  background: transparent !important; 
+  border: none !important;
+  box-shadow: none !important;
+  margin: auto; 
+  animation: fadeIn 0.3s ease-out;
 }
 
-.sushi-card:hover {
-  background-color: #ffe082;
-  transform: scale(1.02);
-}
-
-.sushi-card img {
-  width: 45px; 
-  height: auto;
-  margin-bottom: 5px;
-  filter: drop-shadow(1px 1px 0px rgba(0,0,0,0.2));
-  image-rendering: pixelated;
-}
-
-.sushi-card p {
-  font-size: 8px; 
+.carousel-title {
+  color: #fff;
+  font-size: 24px;
+  text-shadow: 2px 2px 0px #000; 
+  letter-spacing: 2px;
   margin: 0;
+}
+
+.carousel-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+}
+
+/* YAN OKLAR */
+.carousel-arrow {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 40px;
+  cursor: pointer;
+  text-shadow: 2px 2px 0px #000;
+  transition: transform 0.2s;
+  padding: 10px;
+}
+.carousel-arrow:hover {
+  transform: scale(1.3);
+  color: #ffe082;
+}
+
+/* MERKEZDEKİ SUŞİ ALANI */
+.carousel-center-focus {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 300px;
+}
+
+.carousel-image-wrapper {
+  position: relative;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carousel-sushi-img {
+  width: 120px; 
+  height: auto;
+  image-rendering: pixelated;
+  filter: drop-shadow(0px 10px 5px rgba(0,0,0,0.5)); 
+}
+
+.floating-anim {
+  animation: floatGentle 3s ease-in-out infinite;
+}
+
+.carousel-lock-icon {
+  position: absolute;
+  font-size: 40px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+/* İSİM VE İSTATİSTİKLER */
+.carousel-info-box {
+  background: rgba(255, 255, 255, 0.9);
+  border: 4px solid #2d2a2e;
+  border-radius: 8px;
+  padding: 10px;
+  width: 100%;
   text-align: center;
-  color: #000;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
 }
 
-/* Seçim ekranında kilitli olan suşi kartı */
-.sushi-card-locked {
-  cursor: not-allowed !important;
-  background-color: #e0e0e0 !important;
-  border-color: #757575 !important;
-  opacity: 0.7;
+.carousel-sushi-name {
+  margin: 0 0 5px 0;
+  font-size: 16px;
+  font-weight: 900;
+  color: #2d2a2e;
 }
 
-.sushi-card-locked:hover {
-  transform: none !important;
-  background-color: #e0e0e0 !important;
-}
-
-.lock-badge {
-  font-size: 7px;
-  color: #d32f2f;
+.carousel-stats {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  font-size: 10px;
   font-weight: bold;
-  margin-top: 3px;
 }
+
+.stat-coin { color: #d4af37; } 
+.stat-time { color: #757575; }
+
+/* BUTONLAR */
+.prepare-btn {
+  background-color: #4caf50;
+  color: #fff;
+  border-color: #2d2a2e;
+  font-size: 16px;
+  padding: 10px 30px;
+}
+.prepare-btn:hover { background-color: #45a049;
+   border-color: #fff; }
+
+.locked-btn {
+  background-color: #9e9e9e;
+  color: #e0e0e0;
+  border-color: #616161;
+  font-size: 16px;
+  padding: 10px 30px;
+  cursor: not-allowed;
+}
+
+.carousel-close-text {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: color 0.2s;
+}
+.carousel-close-text:hover { color: #fff; }
+
 
 /* =========================================================
    PREMIUM STORE MODAL AESTHETICS (YATAY LİSTE)
 ========================================================= */
-
 .store-modal {
   background-color: #fde8c4; 
   border: 4px solid #2d2a2e; 
@@ -164,7 +232,7 @@
   flex-direction: column;
   align-items: center;
   box-shadow: 12px 12px 0px rgba(0,0,0,0.4); 
-  width: 460px; /* Açıklamaların sığması için mağazayı genişlettik */
+  width: 460px; 
   max-height: 85vh; 
   animation: popInElastic 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
 }
@@ -244,15 +312,6 @@
 .store-content-area::-webkit-scrollbar-track { background: #e5cba3; border-radius: 4px; }
 .store-content-area::-webkit-scrollbar-thumb { background: #2d2a2e; border-radius: 4px; }
 
-.store-desc-main {
-  font-size: 11px;
-  color: #8c7a65;
-  margin: 0 0 15px 0;
-  text-align: center;
-  font-weight: bold;
-}
-
-/* Grid yerine List yapısı */
 .store-list {
   display: flex;
   flex-direction: column;
@@ -260,7 +319,6 @@
   width: 100%;
 }
 
-/* YATAY SATIR TASARIMI */
 .store-list-item {
   display: flex;
   flex-direction: row;
@@ -272,7 +330,6 @@
   box-shadow: 4px 4px 0px rgba(0,0,0,0.15); 
   transition: transform 0.15s, box-shadow 0.15s;
 }
-
 
 /* 1. Sütun: Resim */
 .item-icon-wrapper {
@@ -295,22 +352,9 @@
 
 .store-list-item:hover .store-sushi-img { transform: scale(1.3); }
 
-.decor-icon {
-  font-size: 35px !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  filter: drop-shadow(2px 3px 0px rgba(0,0,0,0.2));
-}
-
-.locked-img {
-  width: 60px !important;
-  filter: grayscale(0%) brightness(100%)  !important; 
-}
-
 /* 2. Sütun: Bilgi ve Açıklama */
 .item-info-wrapper {
-  flex-grow: 1; /* Ortadaki yazılar kalan tüm boşluğu kaplar, butonu sağa iter */
+  flex-grow: 1; 
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -349,7 +393,7 @@
   cursor: pointer;
   text-shadow: 1px 1px 0px #000; 
   transition: all 0.1s;
-  min-width: 80px; /* Butonların genişliği aynı olsun */
+  min-width: 80px; 
 }
 
 .buy-btn:hover:not(:disabled) { background-color: #ff855f; }
@@ -369,19 +413,18 @@
 /* =========================================================
    YENİ: OYUN İÇİ BİLDİRİM (CUSTOM ALERT) TASARIMI
 ========================================================= */
-
 .custom-alert-overlay {
-  position: absolute; /* Modala göre hizalanır */
+  position: absolute; 
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(253, 232, 196, 0.85); /* Mağazanın zemin rengi, yarı saydam */
+  background-color: rgba(253, 232, 196, 0.85); 
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 10;
-  backdrop-filter: blur(2px); /* Arkadaki yazıları ve sushileri hafif bulanıklaştırır */
+  backdrop-filter: blur(2px); 
   animation: fadeIn 0.2s ease-out;
 }
 
@@ -420,7 +463,6 @@
   transition: transform 0.2s;
 }
 
-/* Dekorasyon kartları üzerine gelince büyüme */
 .store-list-item:hover .decor-image-style {
   transform: scale(1.3);
 }

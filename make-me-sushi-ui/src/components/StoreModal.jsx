@@ -6,7 +6,7 @@ export default function StoreModal({
   sushiMenu, decorationsMenu, sushiImages, decorImages, 
   coins, setCoins, unlockedSushiIds, setUnlockedSushiIds,
   unlockedDecorationIds, setUnlockedDecorationIds, 
-  equippedDecorationIds = [], setEquippedDecorationIds, // YENİ: Takılı eşyalar prop'u
+  equippedDecorationIds = [], setEquippedDecorationIds, 
   setShowStore 
 }) {
   const [activeTab, setActiveTab] = useState('sushi');
@@ -22,7 +22,9 @@ export default function StoreModal({
   // --- SUSHİ SATIN ALMA ---
   const handleBuySushi = async (sushi) => {
     const sushiId = sushi.id || sushi.Id;
-    const price = sushi.price || sushi.Price || 100;
+    
+    // GÜNCELLEME: Sabit 100 yerine doğrudan veritabanındaki fiyatı alıyoruz
+    const price = sushi.unlockPrice || sushi.UnlockPrice || sushi.price || sushi.Price; 
     const token = localStorage.getItem('token')?.replace(/^"|"$/g, '');
 
     if (Number(coins) < Number(price)) {
@@ -138,7 +140,8 @@ export default function StoreModal({
                     </div>
                     <div className="item-action-wrapper">
                       <button className="buy-btn" onClick={() => handleBuySushi(sushi)}>
-                        🪙 {sushi.price || sushi.Price || 100}
+                        {/* GÜNCELLEME: Fiyatı ekrana doğru basıyoruz */}
+                        🪙 {sushi.unlockPrice || sushi.UnlockPrice || sushi.price || sushi.Price}
                       </button>
                     </div>
                   </div>
