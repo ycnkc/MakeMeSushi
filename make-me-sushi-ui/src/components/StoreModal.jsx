@@ -116,8 +116,8 @@ export default function StoreModal({
         </div>
 
         <div className="store-tabs">
-          <button className={`tab-btn ${activeTab === 'sushi' ? 'active' : ''}`} onClick={() => setActiveTab('sushi')}>🍙 RECIPES</button>
-          <button className={`tab-btn ${activeTab === 'decor' ? 'active' : ''}`} onClick={() => setActiveTab('decor')}>🏮 DECOR</button>
+          <button className={`tab-btn ${activeTab === 'sushi' ? 'active' : ''}`} onClick={() => setActiveTab('sushi')}>RECIPES</button>
+          <button className={`tab-btn ${activeTab === 'decor' ? 'active' : ''}`} onClick={() => setActiveTab('decor')}>DECOR</button>
         </div>
 
         {/* ==========================================
@@ -202,7 +202,7 @@ export default function StoreModal({
           </div>
         )}
         
-        <button className="pixel-btn cancel-order-btn" onClick={handleClose}>CLOSE STORE</button>
+        <button className="custom-pixel-btn close-store-btn" onClick={handleClose}>CLOSE STORE</button>
       </div>
     </div>
   );

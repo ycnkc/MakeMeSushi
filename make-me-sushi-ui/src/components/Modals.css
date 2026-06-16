@@ -371,14 +371,14 @@
 .store-modal {
   background-color: #fde8c4; 
   border: 4px solid #2d2a2e; 
-  border-radius: 8px; 
+  border-radius: 0px; 
   padding: 25px;
   display: flex;
   flex-direction: column;
   align-items: center;
   box-shadow: 12px 12px 0px rgba(0,0,0,0.4); 
-  width: 460px; 
-  max-height: 85vh; 
+  width: 500px; 
+  max-height: 500px; 
   animation: popInElastic 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
 }
 
@@ -400,10 +400,20 @@
   text-shadow: 1px 1px 0px #fff; 
 }
 
+.close-store-btn {
+  background-image: url('../assets/cancel-btn.png');
+  transform: translateY(15px); 
+}
+
+.close-store-btn:hover {
+  transform: translateY(15px) scale(1.05) !important;
+  filter: brightness(1.1);
+}
+
 .store-coins-display {
   background: #fff;
   border: 3px solid #2d2a2e;
-  border-radius: 6px;
+  border-radius: 0px;
   padding: 6px 12px;
   font-weight: bold;
   font-size: 14px;
@@ -417,6 +427,7 @@
   gap: 5px;
   margin-bottom: 15px;
   border-bottom: 4px solid #2d2a2e; 
+  outline: none;
 }
 
 .tab-btn {
@@ -424,7 +435,7 @@
   background-color: #e5cba3; 
   border: 4px solid #2d2a2e;
   border-bottom: none; 
-  border-radius: 8px 8px 0 0; 
+  border-radius: 0 0 0 0; 
   padding: 10px;
   font-family: inherit;
   font-weight: bold;
@@ -435,7 +446,9 @@
   transition: all 0.1s ease-in-out;
 }
 
-.tab-btn:hover { background-color: #eed4b1; color: #2d2a2e; }
+.tab-btn:focus { outline: none; }
+
+.tab-btn:hover { background-color: #eed4b1; color: #2d2a2e; border-color: #2d2a2e; }
 .tab-btn.active {
   background-color: #fde8c4; 
   color: #2d2a2e;
@@ -460,21 +473,38 @@
 .store-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: -20px;
   width: 100%;
 }
 
+/* =========================================================
+   STORE LIST ITEM (TEXTBOX PNG ARKA PLANI)
+========================================================= */
 .store-list-item {
   display: flex;
   flex-direction: row;
   align-items: center;
-  background: #fffdf9; 
-  border: 3px solid #2d2a2e;
-  border-radius: 8px;
-  padding: 10px 15px;
-  box-shadow: 4px 4px 0px rgba(0,0,0,0.15); 
-  transition: transform 0.15s, box-shadow 0.15s;
+  
+  /* YENİ: Düz renk ve çerçeve yerine textbox.png kullanıyoruz */
+  background-image: url('../assets/textbox.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: transparent;
+  image-rendering: pixelated; /* Piksel artın bulanıklaşmasını önler */
+  
+  /* Eski HTML kenarlıklarını siliyoruz çünkü resminde zaten siyah çerçeve var */
+  border: none; 
+  border-radius: 0;
+  box-shadow: none; 
+  
+  /* İçerik, çizdiğin o siyah kenarlıklara değmesin diye boşlukları artırdık */
+  padding: 30px 25px; 
+  min-height: 85px; /* Kutunun basık durmaması için */
+  
+  transition: transform 0.15s, filter 0.15s;
 }
+
 
 /* 1. Sütun: Resim */
 .item-icon-wrapper {
@@ -525,28 +555,47 @@
   margin-left: 10px;
 }
 
+/* =========================================================
+   STORE BUY BUTTON (PIXEL ART YEŞİL BUTON)
+========================================================= */
 .buy-btn {
-  background-color: #ff9e7d; 
+  background-image: url('../assets/prepare-btn.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: transparent !important; /* React'ten gelen renkleri ezer */
+  
+  border: none !important;
+  outline: none !important;
+  box-shadow: none;
+  
   color: #fff;
-  border: 3px solid #2d2a2e;
-  border-bottom: 5px solid #2d2a2e; 
-  border-radius: 6px;
-  padding: 8px 15px;
-  font-size: 12px;
   font-family: inherit;
-  font-weight: bold;
+  font-size: 11px; /* Kutunun içine tatlıca sığması için */
+  font-weight: 900;
+  letter-spacing: 1px;
+  
   cursor: pointer;
-  text-shadow: 1px 1px 0px #000; 
-  transition: all 0.1s;
-  min-width: 80px; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  image-rendering: pixelated;
+  transition: transform 0.1s, filter 0.1s;
+  
+  /* Mağaza listesindeki yerine sığacak boyutlar */
+  width: 90px;
+  height: 36px;
+  padding: 0;
 }
 
-.buy-btn:hover:not(:disabled) { background-color: #ff855f; }
+.buy-btn:hover:not(:disabled) { 
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+
 .buy-btn:active:not(:disabled) {
-  border-bottom: 3px solid #2d2a2e;
-  transform: translateY(2px);
+  transform: scale(0.95);
 }
-
 .empty-store-msg {
   text-align: center;
   font-weight: bold;
@@ -576,7 +625,7 @@
 .custom-alert-box {
   background: #fffdf9;
   border: 4px solid #2d2a2e;
-  border-radius: 8px;
+  border-radius: 0px;
   padding: 25px 20px;
   text-align: center;
   width: 75%;
@@ -589,6 +638,7 @@
   font-size: 22px;
   font-weight: 900;
   text-shadow: 1px 1px 0px #ccc;
+  color: #2d2a2e;
 }
 
 .custom-alert-box p {
