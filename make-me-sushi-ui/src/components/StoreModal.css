@@ -1,0 +1,160 @@
+/* --- MAĞAZA ANA KONTEYNERİ --- */
+.store-modal {
+  background-color: #fcebc4; 
+  border: 4px solid #000;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 8px 8px 0px rgba(0,0,0,0.5); 
+  width: 360px;
+  max-height: 85vh; 
+}
+
+/* ÜST BİLGİ (BAŞLIK VE COIN) */
+.store-header {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+  border-bottom: 3px dashed #000;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+.store-header h2 {
+  margin: 0;
+  font-size: 18px;
+  color: #000;
+}
+
+.store-coins-display {
+  background: #fff;
+  border: 2px solid #000;
+  padding: 4px 10px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* SEKMELER (TABS) */
+.store-tabs {
+  display: flex;
+  width: 100%;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.tab-btn {
+  flex: 1;
+  background-color: #e0e0e0;
+  border: 2px solid #000;
+  border-bottom: 4px solid #000;
+  padding: 8px;
+  font-family: inherit;
+  font-weight: bold;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.1s;
+}
+
+.tab-btn:hover {
+  background-color: #d5d5d5;
+}
+
+.tab-btn.active {
+  background-color: #ffcc80; 
+  border-bottom: 2px solid #000;
+  transform: translateY(2px); 
+}
+
+/* İÇERİK ALANI VE KARTLAR */
+.store-content-area {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto; 
+  padding-right: 5px;
+}
+
+.store-desc {
+  font-size: 10px;
+  color: #555;
+  margin: 0 0 15px 0;
+  text-align: center;
+  font-weight: bold;
+}
+
+.store-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); 
+  gap: 12px;
+  width: 100%;
+}
+
+.store-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border: 2px solid #000;
+  padding: 15px 10px;
+  text-align: center;
+}
+
+/* GÖRSELLER */
+.store-card img {
+  width: 50px; 
+  height: auto;
+  margin-bottom: 10px;
+  filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.2));
+}
+
+.decor-icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.locked-img {
+  filter: grayscale(100%) brightness(40%) !important;
+}
+
+/* YAZILAR VE BUTONLAR */
+.item-name {
+  font-size: 10px;
+  margin: 0 0 10px 0;
+  font-weight: bold;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.buy-btn {
+  background-color: #81c784;
+  border: 2px solid #000;
+  border-bottom: 4px solid #000;
+  padding: 6px;
+  font-size: 10px;
+  font-family: inherit;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+}
+
+.buy-btn:hover {
+  background-color: #66bb6a;
+}
+
+.buy-btn:active {
+  border-bottom: 2px solid #000;
+  transform: translateY(2px);
+}
+
+.empty-store-msg {
+  text-align: center;
+  font-weight: bold;
+  font-size: 12px;
+  color: #000;
+  margin: 30px 0;
+}

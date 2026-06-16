@@ -39,37 +39,87 @@
 }
 
 /* =========================================================
-   PAUSE MENU MODAL
+   PAUSE MENU MODAL (SCROLL / PARŞÖMEN)
 ========================================================= */
 .menu-modal {
-  background-color: #fcebc4; 
-  border: 4px solid #000;
-  padding: 30px 40px;
+  background-image: url('../assets/menu_bg.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: transparent;
+  border: none;
+  
+  /* Parşömenin üst/alt kırmızı kıvrımlarına yazılar binmesin diye padding ayarı: */
+  padding: 100px 40px; 
+  
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
-  background-size: 100% 100%;
-  box-shadow: 8px 8px 0px rgba(0,0,0,0.5); 
+  justify-content: center;
+  width: 550px; 
+  min-height: 650px; 
+  box-shadow: none; 
+  filter: drop-shadow(8px 10px 0px rgba(0,0,0,0.4)); /* Scroll'un dış hatlarına gölge */
+  image-rendering: pixelated;
   animation: popInElastic 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
 .menu-modal h2 {
-  margin: 0;
-  font-size: 20px;
-  color: #000;
-  border-bottom: 2px solid #000;
+  margin: 0 0 20px 0;
+  font-size: 26px;
+  color: #4a3623;
+  display: inline-block;
+  border-bottom: 3px dashed #4a3623; /* Parşömen kağıdına yakışan mürekkep / koyu kahve tonu */
   padding-bottom: 10px;
-  width: 100%;
+  width: 50%;
   text-align: center;
+  font-weight: 900;
+  text-shadow: none; /* Kağıt üstünde gölge kullanmıyoruz, daha doğal duruyor */
 }
 
 .menu-options {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  width: 220px; 
+  align-items: center;
+  gap: 10px; /* Butonlar arası boşluk */
+  width: 100%;
 }
+
+/* Çıkış butonunun SushiModal'dan miras aldığı ekstra margin-top'u sıfırlıyoruz */
+.text-menu-btn {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #4a3623; /* Başlık yazısıyla aynı eskimiş mürekkep tonu */
+  font-family: inherit;
+  font-size: 18px; /* Arka plan olmadığı için biraz daha büyük ve net */
+  font-weight: 900;
+  letter-spacing: 2px;
+  cursor: pointer;
+  padding: 8px;
+  transition: all 0.15s ease-in-out;
+  text-shadow: none; /* Kağıt üzerinde yazı gölgesi olmaz, doğal durmalı */
+}
+
+/* Üzerine gelince (Hover) efekti */
+.text-menu-btn:hover {
+  transform: scale(1.15); /* Tatlı bir şekilde büyür */
+  color: #d32f2f; /* Üzerine gelince seçili olduğunu belli eden kiremit/kırmızı tonu */
+}
+
+/* Basılma anındaki efekt */
+.text-menu-btn:active {
+  transform: scale(0.95);
+}
+
+/* Çıkış butonu, diğerlerinden ayrılsın diye biraz daha aşağıda ve varsayılan olarak farklı renkte olabilir */
+.logout-text-btn {
+  color: #8b0000; /* Biraz daha soluk bir bordo/kırmızı */
+  margin-top: 10px;
+}
+
+
+
 
 /* =========================================================
    YENİ: CAROUSEL (SÜZÜLEN) SUSHI SELECTOR 
