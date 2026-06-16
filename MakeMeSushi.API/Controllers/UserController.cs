@@ -115,19 +115,24 @@ public class UserController : ControllerBase
 
     [HttpGet("my-decorations")]
     [Authorize]
-    public async Task<ActionResult<List<int>>> GetMyDecorations()
+    public async Task<ActionResult> GetMyDecorations() 
     {
         var username = User.Identity?.Name;
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
         
         if (user == null) return NotFound("User not found");
 
-        var ownedDecorIds = await _context.UserDecorations
+        var myDecors = await _context.UserDecorations
             .Where(ud => ud.UserId == user.Id)
-            .Select(ud => ud.DecorationId)
+            .Select(ud => new { 
+                DecorationId = ud.DecorationId, 
+                IsEquipped = ud.IsEquipped 
+            })
             .ToListAsync();
 
-        return Ok(ownedDecorIds); // [1, 3, 5] gibi sadece ID listesi döner
+        return Ok(myDecors); 
     }
+
+    
 
 }

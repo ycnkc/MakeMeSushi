@@ -74,37 +74,68 @@ function App() {
 // App.jsx içindeki useEffect bloğunu bu şekilde güncelle
 useEffect(() => {
   const fetchAllData = async () => {
-    try {
-      const token = localStorage.getItem('token')?.replace(/^"|"$/g, '');
-      const headers = token ? { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json' 
-      } : {};
+  try {
+    const token = localStorage.getItem('token')?.replace(/^"|"$/g, '');
+    const headers = token ? { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json' 
+    } : {};
 
-      // 1. Ürünleri ve Kullanıcı Dekorlarını Çek
-      const [sushiRes, decorRes, userDecorRes] = await Promise.all([
-        fetch('http://localhost:5008/api/Store/sushis', { headers }),
-        fetch('http://localhost:5008/api/Store', { headers }),
-        token ? fetch('http://localhost:5008/api/User/my-decorations', { headers }) : Promise.resolve({ ok: false })
-      ]);
+    const [sushiRes, decorRes, userDecorRes] = await Promise.all([
+      fetch('http://localhost:5008/api/Store/sushis', { headers }),
+      fetch('http://localhost:5008/api/Store', { headers }),
+      token ? fetch('http://localhost:5008/api/User/my-decorations', { headers }) : Promise.resolve({ ok: false })
+    ]);
 
-      if (sushiRes.ok) setSushiMenu(await sushiRes.json());
-      if (decorRes.ok) setDecorationsMenu(await decorRes.json());
-      if (userDecorRes.ok) setUnlockedDecorationIds(await userDecorRes.json());
-
-      // 2. YENİ: Kullanıcı İstatistiklerini (Coins) Çek
-      if (token) {
-        const statsRes = await fetch('http://localhost:5008/api/User/stats', { headers });
-        if (statsRes.ok) {
-            const statsData = await statsRes.json();
-            setCoins(statsData.currentCoins); // Coinleri güncelle!
-            console.log("Coinler yüklendi:", statsData.currentCoins);
-        }
-      }
+    // 1. SUSHİLERİ OKUMA VE KAYDEDİLENLERİ LİSTEYE EKLEME
+    if (sushiRes.ok) {
+      const sData = await sushiRes.json();
+      setSushiMenu(sData);
+      
+      // Backend'den IsUnlocked: true olarak gelenlerin ID'lerini topla
+      const unlockedIds = sData
+        .filter(s => s.isUnlocked || s.IsUnlocked)
+        .map(s => s.id || s.Id);
         
-    } catch (error) { console.error("Veri yükleme hatası:", error); }
-    finally { setIsMenuLoading(false); }
-  };
+      // Başlangıçtaki [1, 2] ID'leri ile backend'den gelenleri birleştir (Tekrar edenleri sil)
+      setUnlockedSushiIds(prev => [...new Set([...prev, ...unlockedIds])]);
+    }
+
+    // 2. DEKORASYON MENÜSÜNÜ OKUMA
+    if (decorRes.ok) setDecorationsMenu(await decorRes.json());
+
+    // 3. KULLANICI DEKORASYONLARINI OKUMA (TAKILI OLANLARI AYIRMA)
+    if (userDecorRes.ok) {
+      const uData = await userDecorRes.json();
+      
+      // uData artık şöyle geliyor: [{ decorationId: 3, isEquipped: true }, ...]
+      if (uData.length > 0 && typeof uData[0] === 'object') {
+        // Satın alınanların listesi
+        setUnlockedDecorationIds(uData.map(d => d.decorationId || d.DecorationId));
+        
+        // Takılı olanların listesi (IsEquipped == true olanlar)
+        setEquippedDecorationIds(
+          uData.filter(d => d.isEquipped || d.IsEquipped)
+               .map(d => d.decorationId || d.DecorationId)
+        );
+      } else {
+         // Eski sistemden (sadece ID) geliyorsa çökmemesi için güvenlik önlemi
+         setUnlockedDecorationIds(uData);
+      }
+    }
+
+    // 4. KULLANICI COINLERİNİ OKUMA
+    if (token) {
+      const statsRes = await fetch('http://localhost:5008/api/User/stats', { headers });
+      if (statsRes.ok) {
+          const statsData = await statsRes.json();
+          setCoins(statsData.currentCoins);
+      }
+    }
+      
+  } catch (error) { console.error("Veri yükleme hatası:", error); }
+  finally { setIsMenuLoading(false); }
+};
   fetchAllData();
 }, []);
 
