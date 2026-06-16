@@ -8,7 +8,6 @@
   width: 100%;  
   height: 100%; 
   position: relative;
-  background-image: url('../assets/bg_dashboard.png'); 
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -140,7 +139,7 @@
 }
 
 #maneki-dashboard { 
-  width: 150px; 
+  width: 130px; 
   image-rendering: pixelated;
   filter: drop-shadow(0px 8px 0px rgba(0,0,0,0.4));
   transition: transform 0.2s;
@@ -172,7 +171,7 @@
 .dashboard-clock-wrapper:active { transform: scale(0.95); }
 
 #timer-clock-image { 
-  width: 230px; 
+  width: 210px; 
   display: block; 
   image-rendering: pixelated;
   filter: drop-shadow(0px 10px 0px rgba(0,0,0,0.4));
@@ -180,7 +179,7 @@
 
 .digital-clock-text {
   position: absolute;
-  font-size: 28px; /* Çok hafif küçülttük ki ekranın dışına taşıyor gibi durmasın */
+  font-size: 25px; /* Çok hafif küçülttük ki ekranın dışına taşıyor gibi durmasın */
   color: #1a1a1a; /* Tam siyah yerine çok koyu bir LCD grisi */
   margin: 0;
   top: 44%;
@@ -311,4 +310,71 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+/* =========================================================
+   DÜKKAN DEKORASYONLARI (YERLEŞİM - POSITIONING)
+========================================================= */
+
+/* Tüm dekorasyonların ortak özelliği */
+.placed-decor-item {
+  position: absolute;
+  pointer-events: none; /* Fareyle üzerine gelince tıklamayı engellemesin (arkadaki eşyalara tıklanabilsin) */
+  image-rendering: pixelated; /* Pixel art bozulmasın, keskin kalsın */
+  z-index: 1; /* Arka planın üstünde, HUD panellerinin altında dursun */
+}
+
+/* --- 1. BAMBU BİTKİSİ (Örn: Sol Alt Köşede dursun) --- */
+.decor-bamboo {
+  bottom: 33.5%;
+  left: 60%;
+  height: 250px; /* Boyutunu buradan ayarlayabilirsin */
+  z-index: 2;
+}
+
+/* --- 2. KATANA STANDI (Örn: Sağ Duvarda dursun) --- */
+.decor-katana {
+  top: 20%;
+  right: 65%;
+  height: 70px;
+  filter: drop-shadow(0px 8px 0px rgba(0,0,0,0.4));
+
+}
+
+/* --- 3. SAKURA TABLOSU (Örn: Orta Duvarda dursun) --- */
+.decor-sakura_painting {
+  top: 15%;
+  left: 38.5%;
+  height: 150px;
+}
+
+/* --- 4. BAYRAK / BANNER (Örn: Sol Üst Köşeden sarksın) --- */
+.decor-banner {
+  top: 5%;
+  left: 3%;
+  height: 200px;
+}
+
+/* --- 5. IŞIKLAR (Tavandan sarkan fenerler) --- */
+.decor-lights1 {
+  top: 0;
+  left: 20%;
+  height: 170px;
+}
+.decor-lights2 {
+  top: 0;
+  right: 0%;
+  height: 100px;
+}
+.decor-lights3 {
+  top: 0;
+  left: 20%;
+  height: 170px;
+}
+
+/* --- 6. MASA VE SANDALYELER (Örn: Sağ Alt Köşede) --- */
+.decor-chairs_table {
+  bottom: 34%;
+  right: 36%;
+  height: 200px;
 }

@@ -23,6 +23,8 @@ import decorLights1 from './assets/decoration_lights1.png';
 import decorLights2 from './assets/decoration_lights2.png';
 import decorLights3 from './assets/decoration_lights3.png';
 import decorSakura from './assets/decoration_sakura_painting.png';
+import bgGreen from './assets/bg_dashboard_green.png';
+import bgPink from './assets/bg_dashboard_pink.png';
 
 // Bileşenler
 import StartScreen from './components/StartScreen';
@@ -43,7 +45,9 @@ const DECOR_IMAGES = {
   'decoration_lights1.png': decorLights1,
   'decoration_lights2.png': decorLights2,
   'decoration_lights3.png': decorLights3,
-  'decoration_sakura_painting.png': decorSakura
+  'decoration_sakura_painting.png': decorSakura,
+  'bg_dashboard_green.png': bgGreen,
+  'bg_dashboard_pink.png': bgPink
 };
 
 function App() {

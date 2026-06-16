@@ -4,6 +4,7 @@ import timerClock from '../assets/clock.png';
 import textBox from '../assets/textbox.png';
 import manekiHappy from '../assets/maneki_happy.png';
 import coinIcon from '../assets/coin.png';
+import defaultBg from '../assets/bg_dashboard.png'; // Orijinal varsayılan arka plan
 import PauseMenu from './PauseMenu';
 import SushiModal from './SushiModal';
 import StoreModal from './StoreModal';
@@ -43,34 +44,52 @@ export default function Dashboard({
   decorImages = {},
   unlockedDecorationIds = [],
   setUnlockedDecorationIds = () => {},
-  equippedDecorationIds = [], // Varsayılan değer eklendi
+  equippedDecorationIds = [], 
   setEquippedDecorationIds = () => {}
 }) {
 
-  // KRİTİK DEĞİŞİKLİK: Artık 'unlocked' (sahip olunan) listesine değil, 
-  // 'equipped' (takılı olan) listesine bakarak ekrana çiziyoruz.
+  // 1. Sadece 'equipped' (takılı olan) eşyaları bul
   const activeDecorations = decorationsMenu.filter(decor => 
     equippedDecorationIds.includes(decor.id || decor.Id)
   );
 
+  // 2. Takılı eşyalar arasında Type'ı 'Background' olanı bul
+  const equippedBackground = activeDecorations.find(decor => 
+    (decor.type || decor.Type || '').toLowerCase() === 'background'
+  );
+
+  // 3. Normal (duvara/yere konan) eşyaları ayır
+  const normalDecorations = activeDecorations.filter(decor => 
+    (decor.type || decor.Type || '').toLowerCase() !== 'background'
+  );
+
+  // 4. Arka plan URL'sini belirle (Kullanıcı bir şey taktıysa onu, takmadıysa default olanı kullan)
+  const currentBgUrl = equippedBackground 
+    ? decorImages[equippedBackground.imagePath || equippedBackground.ImagePath] 
+    : defaultBg;
+
   return (
-    <div className="fade-in dashboard-screen">
+    <div 
+      className="fade-in dashboard-screen" 
+      style={{ backgroundImage: `url(${currentBgUrl})` }}
+    >
       
       {/* =======================================================
-          TAKILI DEKORASYONLARIN EKRANA YERLEŞTİRİLMESİ
+          NORMAL DEKORASYONLARIN EKRANA YERLEŞTİRİLMESİ
       ======================================================= */}
-      {/* İleride CSS ile ".decor-type-floor", ".decor-type-wall" gibi sınıfları 
-          özelleştirip eşyaları dükkanın istediğin yerine dizebilirsin. */}
-      {activeDecorations.map(decor => {
-        const typeClass = (decor.type || decor.Type || 'general').toLowerCase();
+      {normalDecorations.map(decor => {
+        const imageKey = decor.imagePath || decor.ImagePath;
+        
+        // Dosya isminden benzersiz bir sınıf üretiyoruz. 
+        // Örn: 'decoration_bamboo.png' -> 'decor-bamboo'
+        const customClass = imageKey.replace('decoration_', 'decor-').replace('.png', '');
         
         return (
           <img 
             key={decor.id || decor.Id}
-            src={decorImages[decor.imagePath || decor.ImagePath]} 
+            src={decorImages[imageKey]} 
             alt={decor.name || decor.Name}
-            className={`placed-decor-item decor-type-${typeClass}`}
-            style={{ position: 'absolute', zIndex: 1 }} // CSS ile düzenlenene kadar sol üste atar
+            className={`placed-decor-item ${customClass}`}
           />
         );
       })}
