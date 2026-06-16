@@ -661,3 +661,220 @@
 .store-list-item:hover .decor-image-style {
   transform: scale(1.3);
 }
+
+.ok-btn {
+  transform: translateX(115px);
+}
+
+.ok-btn:hover {
+  transform: translateX(115px) scale(1.05) !important;
+  filter: brightness(1.1);
+}
+
+/* =========================================================
+   CAROUSEL BAŞLIK VE OKLAR
+========================================================= */
+.carousel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  border-bottom: 4px dotted #f5f2ed; 
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.carousel-header h2 {
+  margin: 0;
+  font-size: 20px;
+  color: #f3eaf4;
+  text-align: center;
+  flex-grow: 1; /* Yazının ortada kalmasını sağlar */
+}
+
+/* Kendi Çizdiğin Ok Butonları */
+.custom-arrow-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s, filter 0.15s;
+}
+
+.custom-arrow-btn img {
+  width: 35px; /* Okunun büyüklüğünü buradan ayarlayabilirsin */
+  height: auto;
+  image-rendering: pixelated;
+  filter: drop-shadow(2px 3px 0px rgba(0,0,0,0.25));
+}
+
+.custom-arrow-btn:hover {
+  transform: scale(1.15);
+  filter: brightness(1.1);
+}
+
+.custom-arrow-btn:active {
+  transform: scale(0.9);
+}
+
+.carousel-content-wrapper {
+  width: 100%;
+}
+
+/* =========================================================
+   TODAY'S KITCHEN (SUSHİ GÜNLÜĞÜ)
+========================================================= */
+
+/* Listeyi Saran Kutu (Kaydırma - Scrollbar ayarları) */
+.sushi-log-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+  max-height: 250px; /* Çok uzarsa menüden taşmasın diye sabitliyoruz */
+  overflow-y: auto;
+  padding-right: 10px; /* Kaydırma çubuğu için boşluk */
+}
+
+/* Şık Pikselsi Kaydırma Çubuğu (Scrollbar) */
+.sushi-log-list::-webkit-scrollbar { 
+  width: 8px; 
+}
+.sushi-log-list::-webkit-scrollbar-track { 
+  background: transparent; 
+}
+.sushi-log-list::-webkit-scrollbar-thumb { 
+  background: #2d2a2e; /* Koyu mürekkep rengi */
+  border-radius: 4px; 
+}
+
+/* Her Bir Sushi Kutusu (Senin textbox.png çizimin) */
+.sushi-log-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-image: url('../assets/textbox.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  padding: 12px 20px;
+  min-height: 70px;
+  filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.15));
+  transition: transform 0.15s, filter 0.15s;
+}
+
+
+/* Sushinin Arkasındaki Küçük Kare Kutu */
+.sushi-log-icon-bg {
+  width: 45px;
+  height: 45px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fffdf9;
+  border-radius: 8px;
+  margin-right: 15px;
+  flex-shrink: 0;
+}
+
+/* Sushi Resmi */
+.sushi-log-img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.2));
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Kutuya Fareyle Gelince Sushi Biraz Büyür ve Sallanır */
+.sushi-log-item:hover .sushi-log-img {
+  transform: scale(1.15) rotate(-5deg);
+}
+
+/* Sushi İsmi Kısmı */
+.sushi-log-info {
+  flex-grow: 1; /* Ortadaki boşluğu kaplayıp yazıyı yayar */
+}
+
+.sushi-log-name {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 900;
+  color: #2d2a2e;
+  text-shadow: 1px 1px 0px #fff; /* Çok hafif bir 3D efekti */
+}
+
+/* Sushi Çarpanı (x2, x3 gibi yazan o tatlı yeşil kısım) */
+.sushi-log-multiplier {
+  font-size: 15px;
+  font-weight: 900;
+  color: #4caf50; /* Tatlı, canlı bir yeşil */
+  text-shadow: 2px 2px 0px #2d2a2e; /* Oyunlarda olan kalın siyah gölge */
+  flex-shrink: 0;
+  transform: translateX(-10px); /* Çarpan yazısını biraz yukarı kaydırarak ikonun üstünde durmasını sağlıyoruz */
+}
+
+.close-stats-btn {
+  background-image: url('../assets/cancel-btn.png');
+  /* Modal içine sabitliyoruz */
+  position: absolute; 
+  bottom: 20px; /* Alttan ne kadar yukarıda olsun? */
+  left: 50%;
+  transform: translateX(-50%); /* Tam merkeze tam olarak hizalar */
+  
+  /* Eğer illaki sağa/sola çekmek istersen margin veya ayrı bir container kullan */
+  width: 120px;
+  height: 40px; 
+}
+
+.close-stats-btn:hover {
+  /* Translate'i kaldırdık, sadece scale kaldı */
+  transform: translateX(-50%) scale(1.05) !important;
+  filter: brightness(1.1);
+}
+
+/* Hiç Sushi Yapılmamışsa Çıkan Yazı */
+.empty-log-msg {
+  text-align: center;
+  font-weight: bold;
+  font-size: 14px;
+  color: #8c7a65;
+  margin-top: 40px;
+}
+
+/* Kutuları tam ortalar ve yan yana dizer */
+.stats-summary-row {
+  display: flex;
+  justify-content: space-between; /* Aralarına boşluk bırakır */
+  width: 100%;
+  gap: 10px; /* Kutuların birbirine yapışmasını engeller */
+  margin-bottom: 20px;
+}
+
+.stat-box {
+  background: url('../assets/textbox.png');
+  background-size: 100% 100%;
+  padding: 15px 5px; /* İç boşluğu artırdık */
+  flex: 1; /* Kutuların eşit boyutta olmasını sağlar */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-title {
+  font-size: 9px;
+  color: #8c7a65;
+  font-weight: 900;
+  margin-bottom: 5px;
+}
+
+.stat-value {
+  font-size: 18px;
+  font-weight: 900;
+  color: #2d2a2e;
+}

@@ -10,7 +10,7 @@
         public bool IsCompleted { get; set; }
         public bool FocusModeActive { get; set; }
 
-        public bool EarnedCoins { get; set; }
+        public int EarnedCoins { get; set; }
 
         public User User {get; set;} = null!; 
  

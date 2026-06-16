@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using  Microsoft.EntityFrameworkCore;  
 using MakeMeSushi.API.Data;
 using MakeMeSushi.API.Models;
+using System.Globalization;
 
 
 [ApiController]
@@ -17,40 +18,52 @@ public class UserController : ControllerBase
         _context = context;
     }
 
-    [HttpPost("complete-focus/{sushiID}")]
-    [Authorize]
-    public async Task<ActionResult<int>> CompleteFocus(int sushiID)
+[HttpPost("complete-focus/{sushiID}")]
+[Authorize]
+public async Task<ActionResult<int>> CompleteFocus(int sushiID)
+{
+    var username = User.Identity?.Name;
+    var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+    var sushi = await _context.Sushis.FindAsync(sushiID);
+
+    if (user == null) return NotFound("User not found");
+    if (sushi == null) return NotFound("Sushi not found");
+
+    user.TotalCoins += sushi.CoinReward;
+
+    // 1. CompletedSushis tablosuna kayıt at
+    var completion = new CompletedSushi
     {
-       var username = User.Identity?.Name;
-       var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
-       var sushi = await _context.Sushis.FindAsync(sushiID);
+        UserId = user.Id,
+        SushiID = sushiID,
+        SushiName = sushi.Name,
+        DateCompleted = DateTime.Now
+    };
+    _context.CompletedSushis.Add(completion);
 
-         if (user == null) return NotFound("User not found");
-         if (sushi == null) return NotFound("Sushi not found");
+    // 2. PomodoroSessions tablosuna kayıt at
+    // Not: Session'ı buraya eklersen, her tamamlanan sushi aynı zamanda 1 pomodoro oturumu sayılır.
+    var session = new PomodoroSession
+    {
+        UserId = user.Id,
+        StartTime = DateTime.Now.AddMinutes(-25), // 25 dk önce başladı varsayıyoruz
+        EndTime = DateTime.Now,
+        IsCompleted = true,
+        FocusModeActive = true,
+        EarnedCoins = sushi.CoinReward
+    };
+    _context.PomodoroSessions.Add(session);
 
+    await _context.SaveChangesAsync();
 
-         user.TotalCoins += sushi.CoinReward;
+    return Ok(new
+    {
+        NewBalance = user.TotalCoins,
+        Message = "Focus session and Sushi completed!"
+    });
+}
 
-         var completion = new CompletedSushi
-         {
-             UserId = user.Id,
-             SushiID = sushiID,
-             SushiName = sushi.Name,
-             DateCompleted = DateTime.Now
-         };
-
-         _context.CompletedSushis.Add(completion);
-         await _context.SaveChangesAsync();
-
-         return Ok(new
-         {
-             NewBalance = user.TotalCoins,
-             AddedCoins = sushi.CoinReward,
-             Message = "Focus session completed! Coins added: " + sushi.CoinReward
-         });
-    }
-
-    [HttpGet("stats")]
+[HttpGet("stats")]
     [Authorize]
     public async Task<ActionResult> GetUserStats()
     {
@@ -60,20 +73,71 @@ public class UserController : ControllerBase
         if (user == null) return NotFound();
 
         var today = DateTime.Today;
-        var lastWeek = today.AddDays(-7);
+        var firstDayOfMonth = new DateTime(today.Year, today.Month, 1);
+        var sevenDaysAgo = today.AddDays(-6);
 
-        var dailyCount = await _context.CompletedSushis.CountAsync(cs => cs.UserId == user.Id && cs.DateCompleted >= today);
+        // Her bir sushi yapımının 25 dakika (1 Pomodoro) olduğunu varsayıyoruz
+        int minutesPerPomodoro = 25; 
 
-        var weeklyCount = await _context.CompletedSushis.CountAsync(cs => cs.UserId == user.Id && cs.DateCompleted >= lastWeek);
+        // 1. ÖZET RAKAMLAR (Bugün, Bu Ay, Tüm Zamanlar)
+        var dailyCount = await _context.CompletedSushis
+            .CountAsync(cs => cs.UserId == user.Id && cs.DateCompleted.Date == today);
+        
+        var monthlyCount = await _context.CompletedSushis
+            .CountAsync(cs => cs.UserId == user.Id && cs.DateCompleted.Date >= firstDayOfMonth);
+        
+        var totalCount = await _context.CompletedSushis
+            .CountAsync(cs => cs.UserId == user.Id);
 
-        var totalCount = await _context.CompletedSushis.CountAsync(cs => cs.UserId == user.Id);
+        // 2. HAFTALIK GRAFİK (Son 7 Gün)
+        // Veritabanından son 7 günün verisini gün bazında gruplayarak çekiyoruz
+        var weeklyDataDb = await _context.CompletedSushis
+            .Where(cs => cs.UserId == user.Id && cs.DateCompleted.Date >= sevenDaysAgo)
+            .GroupBy(cs => cs.DateCompleted.Date)
+            .Select(g => new { Date = g.Key, Count = g.Count() })
+            .ToListAsync();
 
+        var weeklyChart = new List<object>();
+        
+        // Grafikte boş günlerin (hiç çalışılmayan günlerin) de 0 olarak görünmesi için döngü kuruyoruz
+        for (int i = 6; i >= 0; i--)
+        {
+            var currentDate = today.AddDays(-i);
+            var dayData = weeklyDataDb.FirstOrDefault(d => d.Date == currentDate);
+            
+            weeklyChart.Add(new
+            {
+                day = currentDate.ToString("ddd", CultureInfo.InvariantCulture), // "Mon", "Tue" gibi kısa gün adları
+                minutes = (dayData?.Count ?? 0) * minutesPerPomodoro
+            });
+        }
+
+        // 3. BUGÜN YAPILAN SUSHİLER (GÜNLÜK LOG)
+        // CompletedSushis ve Sushis tablolarını birleştirip (Join), görselleriyle beraber sayısını alıyoruz
+        var todaySushis = await _context.CompletedSushis
+            .Where(cs => cs.UserId == user.Id && cs.DateCompleted.Date == today)
+            .Join(_context.Sushis, 
+                  cs => cs.SushiID, 
+                  s => s.Id, 
+                  (cs, s) => new { cs.SushiName, s.ImagePath }) // İki tablodan lazım olanları aldık
+            .GroupBy(x => new { x.SushiName, x.ImagePath }) // İsme ve resme göre grupladık
+            .Select(g => new
+            {
+                name = g.Key.SushiName,
+                imagePath = g.Key.ImagePath,
+                count = g.Count()
+            })
+            .ToListAsync();
+
+        // FRONTEND'İN BEKLEDİĞİ EKSİKSİZ JSON YAPISI
         return Ok(new
         {
-            DailyTotal = dailyCount,
-            WeeklyTotal = weeklyCount,
-            AllTimeTotal = totalCount,
-            CurrentCoins = user.TotalCoins
+            todayMinutes = dailyCount * minutesPerPomodoro,
+            monthMinutes = monthlyCount * minutesPerPomodoro,
+            totalMinutes = totalCount * minutesPerPomodoro,
+            weeklyChart = weeklyChart,
+            todaySushis = todaySushis,
+            currentCoins = user.TotalCoins // Eğer menünün başka bir yerinde lazımsa diye parayı da gönderiyoruz
         });
     }
 

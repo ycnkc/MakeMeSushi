@@ -105,7 +105,7 @@ export default function StoreModal({
             <div className="custom-alert-box">
               <h3>{notification.type === 'error' ? 'Oops!' : 'YAY!'}</h3>
               <p>{notification.text}</p>
-              <button className="buy-btn" onClick={() => setNotification(null)}>OK</button>
+              <button className="buy-btn ok-btn" onClick={() => setNotification(null)}>OK</button>
             </div>
           </div>
         )}

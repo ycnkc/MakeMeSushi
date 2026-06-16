@@ -7,7 +7,8 @@ export default function PauseMenu({
   setIsTimerRunning, 
   setStage, 
   setUsername, 
-  setPassword 
+  setPassword,
+  setShowStats={setShowStats}
 }) {
   
   const handleResume = () => {
@@ -33,13 +34,10 @@ export default function PauseMenu({
             RESUME
           </button>
           
-          <button className="text-menu-btn" onClick={() => alert("Stats coming soon!")}>
-            STATS
-          </button>
+          <button className="text-menu-btn" onClick={() => { setShowStats(true); setIsMenuOpen(false); }}>
+  STATS
+</button>
 
-          <button className="text-menu-btn" onClick={() => alert("Sushis coming soon!")}>
-            SUSHIS
-          </button>
           
           <button className="text-menu-btn logout-text-btn" onClick={handleLogout}>
             LOGOUT

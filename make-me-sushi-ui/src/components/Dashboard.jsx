@@ -9,6 +9,8 @@ import defaultBg from '../assets/bg_dashboard.png';
 import PauseMenu from './PauseMenu';
 import SushiModal from './SushiModal';
 import StoreModal from './StoreModal';
+import StatsModal from './StatsModal';
+import dingSound from '../assets/ding.mp3';
 import './Dashboard.css';
 
 export default function Dashboard({
@@ -50,7 +52,7 @@ export default function Dashboard({
 }) {
   const [displayedText, setDisplayedText] = useState('');
   const fullText = `Preparing ${targetSushi ? targetSushi.name : ''}...`;
-
+const [showStats, setShowStats] = useState(false);
 
   
 useEffect(() => {
@@ -93,7 +95,19 @@ useEffect(() => {
   return () => clearTimeout(timeout);
 }, [isTimerRunning, targetSushi]);
 
+useEffect(() => {
+  if (timeLeft === 0 && isTimerRunning) {
+    const audio = new Audio(dingSound);
+    audio.volume = 0.1; 
+    audio.play().catch(err => console.log("Ses çalma hatası:", err));
 
+    completeSession();
+
+    setIsTimerRunning(false);
+    
+    // (İleride backend'e CompleteFocus isteği atacağımız yer tam olarak burası olacak!)
+  }
+}, [timeLeft, isTimerRunning, setIsTimerRunning]);
   // Sadece 'equipped' (takılı olan) eşyaları bul
   const activeDecorations = decorationsMenu.filter((decor) =>
     equippedDecorationIds.includes(decor.id ?? decor.Id)
@@ -119,6 +133,31 @@ useEffect(() => {
     setTargetSushi(null);
     setIsTimerRunning(false);
     setTimeLeft(25 * 60);
+  };
+
+  const completeSession = async () => {
+    if (!targetSushi) return;
+    
+    const token = localStorage.getItem('token')?.replace(/^"|"$/g, '');
+    const sushiId = targetSushi.id || targetSushi.Id;
+
+    try {
+      const response = await fetch(`http://localhost:5008/api/User/complete-focus/${sushiId}`, {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setCoins(data.newBalance); // Coinleri güncelleyelim
+        console.log("Database updated:", data.message);
+      }
+    } catch (err) {
+      console.error("DB update error:", err);
+    }
   };
 
   const handleClockClick = () => {
@@ -181,6 +220,8 @@ useEffect(() => {
           setStage={setStage}
           setUsername={setUsername}
           setPassword={setPassword}
+          setShowStats={setShowStats}
+          sushiImages={sushiImages} /* <--- BUNU EKLE */
         />
       )}
 
@@ -291,6 +332,8 @@ useEffect(() => {
           setEquippedDecorationIds={setEquippedDecorationIds}
         />
       )}
+
+      {showStats && <StatsModal setShowStats={setShowStats} sushiImages={sushiImages}/>}
     </div>
   );
 }

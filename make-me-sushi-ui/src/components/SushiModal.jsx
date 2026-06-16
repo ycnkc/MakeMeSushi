@@ -71,7 +71,7 @@ export default function SushiModal({
                   className="custom-pixel-btn prepare-btn"
                   onClick={() => {
                     setTargetSushi(currentSushi);
-                    setTimeLeft(focusTime * 60);
+                    setTimeLeft(5);
                     setShowSushiSelector(false);
                     setIsTimerRunning(true);
                   }}
