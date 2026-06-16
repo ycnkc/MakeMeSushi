@@ -1,5 +1,6 @@
 // src/components/SushiModal.jsx
 import React, { useState } from 'react';
+import arrowIcon from '../assets/arrow.png';
 import './Modals.css';
 
 export default function SushiModal({ 
@@ -12,12 +13,10 @@ export default function SushiModal({
   setIsTimerRunning,
   unlockedSushiIds
 }) {
-  // Hangi suşiye baktığımızı takip eden state
   const [currentIndex, setCurrentIndex] = useState(0);
 
   if (!sushiMenu || sushiMenu.length === 0) return null;
 
-  // Sağ ve Sol ok fonksiyonları
   const handleNext = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % sushiMenu.length);
   };
@@ -26,10 +25,8 @@ export default function SushiModal({
     setCurrentIndex((prevIndex) => (prevIndex === 0 ? sushiMenu.length - 1 : prevIndex - 1));
   };
 
-  // Şu an ekranda olan suşiyi seç
   const currentSushi = sushiMenu[currentIndex];
   
-  // Güvenlik değişkenleri
   const sushiId = currentSushi.id || currentSushi.Id;
   const sushiName = currentSushi.name || currentSushi.Name;
   const imagePath = currentSushi.imagePath || currentSushi.ImagePath;
@@ -39,24 +36,23 @@ export default function SushiModal({
 
   return (
     <div className="menu-overlay" onClick={() => setShowSushiSelector(false)}>
-      
-      {/* Saydam ve esnek yeni modal kapsayıcımız */}
       <div className="carousel-modal fade-in" onClick={(e) => e.stopPropagation()}>
         
         <h2 className="carousel-title">WHAT TO MAKE?</h2>
 
         <div className="carousel-container">
-          {/* SOL OK */}
-          <button className="carousel-arrow" onClick={handlePrev}>◀</button>
-
-          {/* MERKEZDEKİ SUŞİ (Süzülen Kısım) */}
-          <div className="carousel-center-focus">
+<button className="carousel-arrow arrow-left" onClick={handlePrev}>
+            <img src={arrowIcon} alt="Previous" />
+          </button>
+          {/* SİHİRLİ DOKUNUŞ: key={sushiId} ve carousel-swipe sınıfı eklendi */}
+          <div key={sushiId} className="carousel-center-focus carousel-swipe">
+            
             <div className="carousel-image-wrapper">
               <img 
                 src={sushiImages[imagePath]} 
                 alt={sushiName} 
                 className={`carousel-sushi-img ${isUnlocked ? 'floating-anim' : ''}`}
-                style={{ filter: isUnlocked ? 'none' : 'brightness(0) opacity(0.6)' }} // Kilitliyse tam bir gölge/siluet olur
+                style={{ filter: isUnlocked ? 'none' : 'brightness(0) opacity(0.6)' }}
               />
               {!isUnlocked && <div className="carousel-lock-icon">🔒</div>}
             </div>
@@ -65,15 +61,14 @@ export default function SushiModal({
               <h3 className="carousel-sushi-name">{sushiName.toUpperCase()}</h3>
               <div className="carousel-stats">
                 <span className="stat-coin">🪙 +{coinReward}</span>
-                <span className="stat-time">{focusTime} mins</span>
+                <span className="stat-time">⏱️ {focusTime} dk</span>
               </div>
             </div>
 
-            {/* BUTON ALANI */}
             <div className="carousel-action-area">
               {isUnlocked ? (
                 <button 
-                  className="pixel-btn prepare-btn"
+                  className="custom-pixel-btn prepare-btn"
                   onClick={() => {
                     setTargetSushi(currentSushi);
                     setTimeLeft(focusTime * 60);
@@ -84,16 +79,16 @@ export default function SushiModal({
                   PREPARE
                 </button>
               ) : (
-                <button className="pixel-btn locked-btn" disabled>
+                <button className="custom-pixel-btn locked-btn" disabled>
                   LOCKED
                 </button>
               )}
             </div>
           </div>
 
-          {/* SAĞ OK */}
-          <button className="carousel-arrow" onClick={handleNext}>▶</button>
-        </div>
+          <button className="carousel-arrow arrow-right" onClick={handleNext}>
+            <img src={arrowIcon} alt="Next" />
+          </button>        </div>
         
         <button className="carousel-close-text" onClick={() => setShowSushiSelector(false)}>
           [ CLICK HERE TO CANCEL ]
