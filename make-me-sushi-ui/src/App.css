@@ -35,6 +35,22 @@ img {
   image-rendering: pixelated;
 }
 
+/* Tüm uygulamadaki tıklanabilir alanların varsayılan outline'ını kaldırır */
+* {
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent; /* Mobil tarayıcılarda çıkan o gri kutuyu da yok eder */
+}
+
+/* Alternatif olarak sadece buton ve inputlar için daha "temiz" bir yaklaşım: */
+button, 
+input, 
+textarea, 
+select, 
+a {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 /* Oyunun kendisi (Ortadaki ekran) */
 /* src/App.css */
 .game-container {

@@ -36,10 +36,13 @@
 /* --- SOL ÜST KONTROL PANELİ (Müzik, Store, Menü) --- */
 .hud-top-left {
   position: absolute;
-  top: 25px; /* Tavandan biraz nefes payı */
-  left: 25px;
+  top: 20px;
+  left: 20px;
   display: flex;
-  align-items: center; /* Ortaya hizalama garanti altına alındı */
+  /* Eğer alt alta olsun istiyorsan burayı column yapmalısın */
+  flex-direction: column; 
+  align-items: center;
+  /* Alt alta olduklarında aralarındaki boşluğu kontrol etmek için gap kullanıyoruz */
   gap: 20px; 
   z-index: 90;
 }
@@ -58,14 +61,6 @@
 }
 
 /* --- İKON BOYUTLARI VE EFEKTLERİ --- */
-.cd-icon {
-  width: 55px; 
-  height: 55px;
-  image-rendering: pixelated;
-  filter: drop-shadow(0px 4px 0px rgba(0,0,0,0.2));
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;
-}
-
 .hud-coin-icon, .hud-icon-btn {
   width: 30px; /* Diğer ikonları plağa uyumlu olması için azıcık büyüttük */
   height: 30px;
@@ -74,12 +69,6 @@
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;
 }
 
-/* --- HOVER EFEKTLERİ --- */
-/* Plak SADECE kendi ekseninde döner (tooltip etkilenmez) */
-.hud-action-btn:hover .cd-icon {
-  transform: scale(1.15) rotate(25deg);
-  filter: drop-shadow(0px 6px 0px rgba(0,0,0,0.3));
-}
 
 /* Coin ve Menü yukarı sıçrar */
 .hud-action-btn:hover .hud-coin-icon,
@@ -113,9 +102,10 @@
 }
 
 .hud-menu-btn-wrap img {
-  width: 80px;
-  height: 30px;
-  filter: drop-shadow(0px 4px 0px rgba(0,0,0,0.3));
+  width: 90px;
+  height: 32px;
+  filter: none;
+
 }
 
 .hud-music-btn::after { content: "MUSIC"; }
@@ -639,4 +629,33 @@
 
 .chat-input-area button:hover {
   background-color: #e5a445; /* Turuncu bir vurgu */
+}
+
+.left-bottom-hud {
+  position: absolute;
+  bottom: 22%; 
+  left: 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 20px; 
+  z-index: 90;
+  filter: drop-shadow(0px 10px 0px rgba(0,0,0,0.2));
+}
+
+.left-bottom-hud img {
+  width: 180px;
+  height: 180px;
+  image-rendering: pixelated;
+}
+
+/* 1. Butona basıldığında butonun kendisini küçült (Daha garantidir) */
+.hud-music-btn:active {
+  transform: scale(0.95);
+  transition: transform 0.1s;
+}
+
+/* 2. Butonun içindeki resmin üzerine ekstra yük binmesini engelle */
+.hud-music-btn img {
+  pointer-events: none; 
 }

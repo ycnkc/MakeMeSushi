@@ -61,7 +61,7 @@ export default function SushiModal({
               <h3 className="carousel-sushi-name">{sushiName.toUpperCase()}</h3>
               <div className="carousel-stats">
                 <span className="stat-coin">🪙 +{coinReward}</span>
-                <span className="stat-time">⏱️ {focusTime} dk</span>
+                <span className="stat-time">⏱️ {focusTime} mins</span>
               </div>
             </div>
 

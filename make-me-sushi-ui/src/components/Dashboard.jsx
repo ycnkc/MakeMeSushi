@@ -12,7 +12,7 @@ import StatsModal from './StatsModal';
 import dingSound from '../assets/ding.mp3';
 import lofi1 from '../assets/lofi1.mp3';
 import lofi2 from '../assets/lofi2.mp3';
-import cdImg from '../assets/cd.png'; 
+import radioIcon from '../assets/radio.png'; 
 import MusicPlayer from "./MusicPlayer";
 import { useState, useEffect, useRef } from 'react';
 import './Dashboard.css';
@@ -348,13 +348,17 @@ export default function Dashboard({
           <img src={menuIcon} alt="Menu" className="hud-icon-btn" />
         </button>
 
-        <button className="hud-action-btn hud-music-btn" onClick={handleOpenMusic}>
-          <img src={cdImg} alt="Music" className="cd-icon" />
-        </button>
 
         <button className="hud-action-btn hud-store-btn" onClick={handleOpenStore}>
           <img src={coinIcon} alt="Coin" className="hud-coin-icon" />
           <span className="hud-coin-text">{coins}</span>
+        </button>
+      </div>
+
+
+      <div className="left-bottom-hud">
+                <button className="hud-action-btn hud-music-btn" onClick={handleOpenMusic}>
+          <img src={radioIcon} alt="Music" className="cd-icon" />
         </button>
       </div>
 
