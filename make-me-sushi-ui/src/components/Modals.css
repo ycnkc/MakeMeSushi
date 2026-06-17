@@ -880,25 +880,7 @@
 }
 
 /* Sol Üstteki Plak Butonu */
-.music-trigger {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  cursor: pointer;
-  z-index: 90;
-  transition: transform 0.2s;
-}
 
-.cd-icon {
-  width: 55px;
-  height: 55px;
-  image-rendering: pixelated;
-  filter: drop-shadow(3px 3px 0px rgba(0,0,0,0.2));
-}
-
-.music-trigger:hover {
-  transform: scale(1.1) rotate(15deg);
-}
 
 /* Modal İçindeki Liste */
 .music-modal-box {
@@ -949,4 +931,10 @@
 .stop-btn {
   color: white;
   text-shadow: 2px 2px 0px #000;
+  transform: translateX(45px);
+}
+
+.stop-btn:hover {
+  transform: translateX(45px) scale(1.05) !important;
+  filter: brightness(1.1);
 }

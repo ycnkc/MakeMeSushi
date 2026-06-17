@@ -28,31 +28,33 @@ export default function MusicPlayer({ musicFiles, showMusicModal, setShowMusicMo
         <h2 className="carousel-title">SELECT VIBE</h2>
         
         <div className="music-selection-list">
-          {musicFiles.map((_, index) => (
-            <button 
-              key={index} 
-              className={`music-track-btn ${currentTrack === index && isPlaying ? 'active-track' : ''}`}
-              onClick={() => {
-                setCurrentTrack(index);
-                setIsPlaying(true);
-              }}
-            >
-              {currentTrack === index && isPlaying ? '🔊' : '🎵'} LOFI TRACK {index + 1}
-            </button>
-          ))}
-          
-          <hr className="music-divider" />
-          
-          <button 
-            className="custom-pixel-btn stop-btn" 
-            onClick={() => setIsPlaying(false)}
-            style={{ backgroundColor: isPlaying ? '#ff6b6b' : '#999' }}
-          >
-            {isPlaying ? "STOP MUSIC" : "MUSIC STOPPED"}
-          </button>
-        </div>
+  {musicFiles.map((_, index) => (
+    <button 
+      key={index} 
+      className={`music-track-btn ${currentTrack === index && isPlaying ? 'active-track' : ''}`}
+      onClick={() => {
+        setCurrentTrack(index);
+        setIsPlaying(true);
+      }}
+    >
+      {/* Yazı ve butonun sol tarafta durması için */}
+      <span className="track-label">
+        {currentTrack === index && isPlaying ? '🔊 ' : '🎵 '} LOFI TRACK {index + 1}
+      </span>
+    </button>
+  ))}
+  
+  <hr className="music-divider" />
+  
+  <button 
+    className="custom-pixel-btn stop-btn" 
+    onClick={() => setIsPlaying(false)}
+  >
+    {isPlaying ? "STOP MUSIC" : "MUSIC STOPPED"}
+  </button>
+</div>
 
-        <button className="carousel-close-text" onClick={() => setShowMusicModal(false)}>
+        <button className="carousel-close-text " onClick={() => setShowMusicModal(false)}>
           [ CLOSE ]
         </button>
       </div>

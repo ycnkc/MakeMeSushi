@@ -1,7 +1,8 @@
 /* src/components/Dashboard.css */
 
-/* --- 1. ANA EKRAN KAPSAYICISI --- */
-/* App.css'teki 16:9 çerçevenin içini tam olarak kaplar ve taşmaları önler */
+/* =========================================================
+   1. ANA EKRAN KAPSAYICISI
+========================================================= */
 .dashboard-screen {
   display: flex;
   flex-direction: column;
@@ -24,102 +25,213 @@
   width: 100%;
   height: 100%;
   box-shadow: inset 0 0 120px rgba(0,0,0,0.6);
-  pointer-events: none; /* Tıklamaları engellememesi için çok kritik! */
-  z-index: 15; /* Arka planın üstünde, UI elemanlarının altında kalsın */
+  pointer-events: none;
+  z-index: 15;
 }
 
+/* =========================================================
+   2. ÜST HUD ELEMANLARI (SAĞ ÜST VE SİPARİŞ FİŞİ)
+========================================================= */
 
-/* --- 2. BÜTÜNLEŞİK HUD PANELİ (Sipariş Kağıdı Görünümü) --- */
+/* =========================================================
+   2. ÜST HUD ELEMANLARI (SAĞ VE SOL KÖŞELER)
+========================================================= */
+
+/* --- SOL ÜST KONTROL PANELİ (Müzik, Store, Menü) --- */
+.hud-top-left {
+  position: absolute;
+  top: 25px; /* Tavandan biraz nefes payı */
+  left: 25px;
+  display: flex;
+  align-items: center; /* Ortaya hizalama garanti altına alındı */
+  gap: 20px; 
+  z-index: 90;
+}
+
+/* Tüm butonların dış çerçevesi (Tooltip hizalaması için kritik!) */
+.hud-action-btn {
+  position: relative;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* --- İKON BOYUTLARI VE EFEKTLERİ --- */
+.cd-icon {
+  width: 55px; 
+  height: 55px;
+  image-rendering: pixelated;
+  filter: drop-shadow(0px 4px 0px rgba(0,0,0,0.2));
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;
+}
+
+.hud-coin-icon, .hud-icon-btn {
+  width: 30px; /* Diğer ikonları plağa uyumlu olması için azıcık büyüttük */
+  height: 30px;
+  image-rendering: pixelated;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;
+}
+
+/* --- HOVER EFEKTLERİ --- */
+/* Plak SADECE kendi ekseninde döner (tooltip etkilenmez) */
+.hud-action-btn:hover .cd-icon {
+  transform: scale(1.15) rotate(25deg);
+  filter: drop-shadow(0px 6px 0px rgba(0,0,0,0.3));
+}
+
+/* Coin ve Menü yukarı sıçrar */
+.hud-action-btn:hover .hud-coin-icon,
+.hud-action-btn:hover .hud-icon-btn {
+  transform: scale(1.15) translateY(-4px) rotate(-3deg);
+  filter: drop-shadow(0px 4px 0px rgba(0,0,0,0.2));
+}
+
+/* --- TOOLTIP ETİKETLERİ --- */
+.hud-action-btn::after {
+  position: absolute;
+  bottom: -35px; /* İkonların tam altına güvenli mesafe */
+  left: 50%;
+  background-color: #2d2a2e;
+  color: #fff;
+  font-size: 9px;
+  padding: 5px 8px;
+  white-space: nowrap;
+  pointer-events: none;
+  font-weight: bold;
+  letter-spacing: 1px;
+  opacity: 0;
+  transform: translateX(-50%) translateY(10px);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 2px 2px 0px rgba(0,0,0,0.3);
+}
+
+.hud-music-btn img {
+  width: 40px;
+  height: 40px;
+}
+
+.hud-music-btn::after { content: "MUSIC"; }
+.hud-store-btn::after { content: "STORE"; }
+.hud-menu-btn-wrap::after { content: "SETTINGS"; }
+
+/* Hover olunca etiket çıkar */
+.hud-action-btn:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* --- COIN YAZISI STİLİ --- */
+.hud-coin-text {
+  font-size: 13px;
+  font-weight: 900;
+  color: #2d2a2e;
+  margin-left: 8px; /* İkon ile yazı arasındaki boşluk */
+     
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Hover olduğunda yazı da ikonla beraber hafif yukarı sıçrasın */
+.hud-action-btn:hover .hud-coin-text {
+  transform: translateY(-4px);
+}
+
+/* =========================================================
+   SAĞ ÜST SİPARİŞ KAĞIDI
+========================================================= */
 .hud-order-paper {
   position: absolute;
-  top: -3%;
-  right: 20px; /* Köşeden biraz daha içeri aldık */
-  
+  top: 0; /* Tavandan kopardık ki güzel dursun */
+  right: 25px; /* Ekranın sağından hafif boşluk */
   background-image: url('../assets/paper.png');
   background-size: 100% 100%;
-  background-repeat: no-repeat;
-  background-color: transparent;
-  image-rendering: pixelated;
-  border: none;
-  
+  padding: 25px 20px;
+  width: 250px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  
-  /* Sıkışıklığı gidermek için elemanlar arası boşluğu 10'dan 15'e çıkardık */
-  gap: 15px; 
-  
-  /* Sağdan soldan ve üstten daha fazla boşluk verip ferahlattık */
-  padding: 30px 30px 50px 25px; 
-  
-  /* EN ÖNEMLİSİ: Kağıdın yanlardan ezilmemesi için sabit bir minimum genişlik */
-  min-width: 120px; 
-  
-  filter: drop-shadow(5px 5px 0px rgba(0,0,0,0.5));
-  z-index: 50;
+  image-rendering: pixelated;
+  filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.15));
+  z-index: 10;
 }
 
-/* Kağıt üzerindeki başlık */
 .order-title {
-  font-size: 16px; /* Başlığı biraz daha belirgin yaptık */
-  color: #3e2723; 
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  margin: 0;
-  border-bottom: 2px dashed #3e2723; 
-  padding-bottom: 8px;
-  width: 90%; /* Çizginin kağıdın kenarlarına çok yaklaşmasını önler */
+  font-size: 16px;
+  width: 70%;
+  font-weight: 900;
+  color: #2d2a2e;
+  border-bottom: 2px dashed #8c7a65;
   text-align: center;
-}
-
-/* Kağıt üzerindeki her bir satır öğesi */
-.order-item {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 12px; /* İkon ve yazı arasını açtık */
-  cursor: pointer;
-  width: 100%;
-  justify-content: flex-start;
-  transition: transform 0.1s;
-  padding-left: 10px; /* Sola çok yapışmasın diye ekstra boşluk */
-}
-
-.order-item .hud-icon-btn {
-  width: 32px;
-  height: auto;
-  image-rendering: pixelated;
-}
-
-.order-item .hud-coin-icon {
-  width: 28px;
-  height: auto;
-  image-rendering: pixelated;
-  filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.3));
-}
-
-.order-item-text,
-.hud-coin-text {
-  font-size: 14px; /* Yazıları biraz daha büyüttük */
-  color: #3e2723; 
-  font-weight: bold;
+  margin: 0 0 5px 30px;
   letter-spacing: 1px;
 }
 
-.order-item:hover {
-  transform: translateY(-2px);
+.quest-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+
+
+.quest-item {
+  display: flex;
+  align-items: center;
+  margin-left: 10px; /* İSİM VE KAĞIT KENARI ARASINDAKİ BOŞLUK */
+  justify-content: flex-start; /* Elemanları sola doğru sıralar */
+  gap: 15px; /* İSİM VE SAYI ARASINDAKİ BOŞLUK (Burayı zevkine göre artırıp azaltabilirsin!) */
+  font-size: 13px;
+  font-weight: 900;
+  color: #2d2a2e;
+}
+
+.quest-checkbox {
+  margin-right: 8px;
+  font-size: 12px;
+}
+
+
+
+.quest-progress {
+  color: #8c7a65;
 }
 
 .order-item-divider {
-  width: 70%; /* Çizgiyi çok az kısalttık ki kağıt kenarlarına değmesin */
+  width: 100%;
   height: 2px;
-  background-color: #3e2723;
-  opacity: 0.3;
-  border-radius: 2px;
+  border-bottom: 2px dashed #8c7a65;
+  margin: 10px 0;
+  opacity: 0.5;
 }
 
-/* --- 3. SAĞ ALT SÜTUN (Saat ve Kedi) --- */
+.quest-reward {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 900;
+  font-size: 10px;
+  margin-top: 5px;
+  margin-left: 60px;
+}
+
+.reward-value {
+  color: #2d2a2e;
+  text-shadow: 1px 1px 0px #fff;
+}
+
+/* --- SİPARİŞ TAMAMLANDIĞINDA ÜSTÜNÜ ÇİZ --- */
+.completed-task {
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+  opacity: 0.5; /* Rengi hafifçe solarak arkaya atar */
+}
+
+
+/* =========================================================
+   3. SAĞ ALT SÜTUN (Saat ve Kedi)
+========================================================= */
 .dashboard-right-column {
   position: absolute;
   bottom: 20%; 
@@ -180,33 +292,29 @@
 
 .digital-clock-text {
   position: absolute;
-  font-size: 25px; /* Çok hafif küçülttük ki ekranın dışına taşıyor gibi durmasın */
-  color: #1a1a1a; /* Tam siyah yerine çok koyu bir LCD grisi */
+  font-size: 25px;
+  color: #1a1a1a;
   margin: 0;
   top: 44%;
   left: 20%;
-  
-  /* Ekrana "oyulmuş" hissi veren çok ince bir beyaz gölge hilesi */
   text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.3);
   letter-spacing: 2px;
 }
 
-/* --- İPUCU (HINT) YAZISI --- */
+/* İpucu Yazısı */
 .hint {
   font-size: 8px;
-  color: #fcebc4; /* Krem rengi yazı */
+  color: #fcebc4;
   padding: 8px 12px;
-  
-  /* Etikete derinlik veren gölge */
-    
-  margin-top: -15px; /* Saate biraz daha yakın dursun */
-  text-transform: uppercase; /* Harfleri büyütmek retro hissini artırır */
+  margin-top: -15px;
+  text-transform: uppercase;
   letter-spacing: 1px;
   z-index: 10;
 }
 
-
-/* --- 4. ORTA ALT SÜTUN (Hazırlanan Sushi) --- */
+/* =========================================================
+   4. ORTA ALT SÜTUN (Hazırlanan Sushi)
+========================================================= */
 .preparing-container {
   position: absolute;
   bottom: 6%; 
@@ -238,11 +346,10 @@
   color: #020202;
   margin: 0;
   min-height: 20px;
-  display: flex; /* İmleci hizalamak için */
+  display: flex;
   align-items: center;
 }
 
-/* İmleç her zaman yanıp söner */
 .preparing-text::after {
   content: '|';
   animation: blink 0.8s infinite;
@@ -255,28 +362,22 @@
   50% { opacity: 0; }
 }
 
-/* --- HAZIRLANAN SUSHİ İPTAL BUTONU (PIXEL ART PNG) --- */
+/* İptal Butonu */
 .cancel-order-btn {
   background-image: url('../assets/cancel-btn.png');
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-position: center;
   background-color: transparent;
-  
   border: none;
   outline: none;
-  
-  /* Yazı Stilleri */
   color: #fff;
   font-family: inherit;
   font-size: 12px;
   font-weight: 900;
   letter-spacing: 1px;
-  
-  /* Boyutlar (Zamanlayıcının altına sığması için mini ayarlandı) */
   width: 120px;
   height: 40px;
-  
   display: flex;
   align-items: center;
   justify-content: center;
@@ -284,8 +385,6 @@
   image-rendering: pixelated;
   transition: transform 0.1s, filter 0.1s;
   filter: drop-shadow(0px 4px 0px rgba(0,0,0,0.3));
-  
-  /* Kutunun ortalanması için */
   margin-top: 10px;
 }
 
@@ -298,7 +397,9 @@
   transform: scale(0.95);
 }
 
-/* --- 5. ANİMASYONLAR --- */
+/* =========================================================
+   5. ANİMASYONLAR
+========================================================= */
 .float-sushi {
   animation: floatSushi 1.5s infinite ease-in-out;
 }
@@ -328,7 +429,7 @@
   to { opacity: 1; }
 }
 
-/* Maneki Konuşma Balonu İçin */
+/* Konuşma Balonu */
 .text-box-wrapper {
   position: relative;
   display: flex;
@@ -357,66 +458,53 @@
 }
 
 /* =========================================================
-   DÜKKAN DEKORASYONLARI (YERLEŞİM - POSITIONING)
+   6. DÜKKAN DEKORASYONLARI
 ========================================================= */
-
-/* Tüm dekorasyonların ortak özelliği */
 .placed-decor-item {
   position: absolute;
-  pointer-events: none; /* Fareyle üzerine gelince tıklamayı engellemesin (arkadaki eşyalara tıklanabilsin) */
-  image-rendering: pixelated; /* Pixel art bozulmasın, keskin kalsın */
-  z-index: 1; /* Arka planın üstünde, HUD panellerinin altında dursun */
+  pointer-events: none;
+  image-rendering: pixelated;
+  z-index: 1;
 }
 
-/* --- 1. BAMBU BİTKİSİ (Örn: Sol Alt Köşede dursun) --- */
 .decor-bamboo {
   bottom: 33.5%;
   left: 60%;
-  height: 250px; /* Boyutunu buradan ayarlayabilirsin */
+  height: 250px;
   z-index: 2;
 }
 
-/* --- 2. KATANA STANDI (Örn: Sağ Duvarda dursun) --- */
 .decor-katana {
   top: 20%;
   right: 65%;
   height: 70px;
   filter: drop-shadow(0px 8px 0px rgba(0,0,0,0.4));
-
 }
 
-/* --- 3. SAKURA TABLOSU (Örn: Orta Duvarda dursun) --- */
 .decor-sakura_painting {
   top: 15%;
   left: 38.5%;
   height: 150px;
 }
 
-/* --- 4. BAYRAK / BANNER (Örn: Sol Üst Köşeden sarksın) --- */
 .decor-banner {
   top: 5%;
   left: 3%;
   height: 200px;
 }
 
-/* --- 5. IŞIKLAR (Tavandan sarkan fenerler) --- */
-.decor-lights1 {
-  top: 0;
-  left: 20%;
-  height: 170px;
-}
-.decor-lights2 {
-  top: 0;
-  right: 0%;
-  height: 100px;
-}
-.decor-lights3 {
+.decor-lights1, .decor-lights3 {
   top: 0;
   left: 20%;
   height: 170px;
 }
 
-/* --- 6. MASA VE SANDALYELER (Örn: Sağ Alt Köşede) --- */
+.decor-lights2 {
+  top: 0;
+  right: 0%;
+  height: 100px;
+}
+
 .decor-chairs_table {
   bottom: 34%;
   right: 36%;
