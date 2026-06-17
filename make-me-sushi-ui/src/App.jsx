@@ -127,28 +127,16 @@ function App() {
   }, [stage]); // "stage" state'i değiştiğinde React bu bloğu tetikler
 
   // --- TIMER MANTIĞI ---
-  useEffect(() => {
+ useEffect(() => {
     let interval = null;
     if (isTimerRunning && timeLeft > 0) {
       interval = setInterval(() => setTimeLeft((time) => time - 1), 1000);
-    } else if (timeLeft === 0 && targetSushi) {
-      setIsTimerRunning(false);
-      clearInterval(interval);
-      const audio = new Audio(dingSound);
-      audio.play().catch(e => console.log(e)); 
-      
-      const token = localStorage.getItem('token')?.replace(/^"|"$/g, '');
-      fetch(`http://localhost:5008/api/User/complete-focus/${targetSushi.id}`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
-      }).then(() => {
-          setCoins(prev => prev + targetSushi.coinReward);
-          setTargetSushi(null);
-          setTimeLeft(25 * 60);
-      });
-    }
+    } 
+    // BURADAKİ else if (timeLeft === 0) KISMINI TAMAMEN SİLDİK! 
+    // Çünkü o işi artık Dashboard yapacak.
+
     return () => clearInterval(interval);
-  }, [isTimerRunning, timeLeft, targetSushi]);
+  }, [isTimerRunning, timeLeft]);
 
   // --- AUTH FONKSİYONLARI ---
   const handleNameSubmit = async () => {

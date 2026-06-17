@@ -1,6 +1,5 @@
 // src/components/Dashboard.jsx
-import { useState, useEffect } from 'react';
-import futomakiIcon from '../assets/futomaki.png';
+import menuIcon from '../assets/menu-btn.png';
 import timerClock from '../assets/clock.png';
 import textBox from '../assets/textbox.png';
 import manekiHappy from '../assets/maneki_happy.png';
@@ -15,7 +14,10 @@ import lofi1 from '../assets/lofi1.mp3';
 import lofi2 from '../assets/lofi2.mp3';
 import cdImg from '../assets/cd.png'; 
 import MusicPlayer from "./MusicPlayer";
+import { useState, useEffect, useRef } from 'react';
 import './Dashboard.css';
+
+let isSavingGlobal = false;
 
 export default function Dashboard({
   coins, setCoins, isMenuOpen, setIsMenuOpen, setIsTimerRunning,
@@ -34,7 +36,7 @@ export default function Dashboard({
   const [displayedText, setDisplayedText] = useState('');
   const [showStats, setShowStats] = useState(false);
   const [showMusicModal, setShowMusicModal] = useState(false);
-  
+  const isSavingRef = useRef(false);
   // Görev state'i başlangıçta BOŞ olmalı ki useEffect yeni görev üretebilsin
   const [dailyQuest, setDailyQuest] = useState({
     requirements: [],
@@ -43,7 +45,11 @@ export default function Dashboard({
   });
 
   // 2. FONKSİYONLAR
-  const saveQuestRewardToDb = async (rewardAmount) => {
+const saveQuestRewardToDb = async (rewardAmount) => {
+    // 1. ARAYÜZÜ ANINDA GÜNCELLE (Optimistic Update)
+    // Backend'i beklemeden parayı anında ekrandaki cüzdana yansıtıyoruz!
+    setCoins(prevCoins => prevCoins + rewardAmount);
+
     const token = localStorage.getItem('token')?.replace(/^"|"$/g, '');
     try {
       const response = await fetch(`http://localhost:5008/api/User/add-reward-coins`, {
@@ -52,21 +58,32 @@ export default function Dashboard({
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(rewardAmount)
+        body: JSON.stringify({ rewardAmount })
       });
 
       if (response.ok) {
         const data = await response.json();
+        // 2. DB'den gelen KESİN bakiye ile eşitle (Garantiye al)
         setCoins(data.newBalance); 
-        console.log("Quest reward successfully saved to database!");
+        console.log("Quest reward successfully saved to database! New Balance:", data.newBalance);
+      } else {
+        // Eğer backend'de (C# tarafında) bir sorun varsa hatayı konsola basacak
+        const errorText = await response.text();
+        console.error("Backend'e kaydedilemedi! Hata detayı:", errorText);
       }
     } catch (err) {
       console.error("Failed to save quest reward to DB:", err);
     }
   };
-
-  const completeSession = async () => {
+const completeSession = async () => {
     if (!targetSushi) return;
+
+    // Spam engelleme kilidi
+    if (isSavingGlobal) {
+      console.log("Spam engellendi! Zaten kaydediliyor...");
+      return;
+    }
+    isSavingGlobal = true; 
     
     const token = localStorage.getItem('token')?.replace(/^"|"$/g, '');
     const sushiId = targetSushi.id || targetSushi.Id;
@@ -82,37 +99,47 @@ export default function Dashboard({
 
       if (response.ok) {
         const data = await response.json();
-        setCoins(data.newBalance); 
+        setCoins(data.newBalance); // İlk olarak odaktan gelen normal coini güncelliyoruz
         console.log("Database updated:", data.message);
 
-        // --- GÖREV İLERLEME MANTIĞI ---
-        setDailyQuest(prevQuest => {
-          if (prevQuest.isCompleted) return prevQuest;
-
-          const updatedReqs = prevQuest.requirements.map(req => {
+        // 🔥 GÖREV İLERLEME MANTIĞI (React kurallarına uygun temiz alan)
+        if (!dailyQuest.isCompleted) {
+          // Güncel gereksinimleri tamamen dışarıda, saf bir şekilde hesaplıyoruz
+          const updatedReqs = dailyQuest.requirements.map(req => {
             if (req.id === sushiId && req.current < req.target) {
               return { ...req, current: req.current + 1 };
             }
             return req;
           });
 
+          // Tüm hedefler doldu mu kontrolü
           const allDone = updatedReqs.every(req => req.current >= req.target);
-          
-          if (allDone && !prevQuest.isCompleted) {
-            // Görev BİTTİ! Ödülü veritabanına kaydet
-            saveQuestRewardToDb(prevQuest.reward);
-          }
 
-          return {
-            ...prevQuest,
+          // Hesaplama bittikten sonra state'i sadece UI çizimi için güncelliyoruz
+          setDailyQuest(prev => ({
+            ...prev,
             requirements: updatedReqs,
             isCompleted: allDone
-          };
-        });
-        // ---------------------------------------------
+          }));
+
+          // Eğer bu sushi ile birlikte fişteki HER ŞEY bittiyse veritabanına ödülü gönderiyoruz!
+          if (allDone) {
+            console.log("Tüm siparişler başarıyla tamamlandı! Ödül yükleniyor: ", dailyQuest.reward);
+            await saveQuestRewardToDb(dailyQuest.reward);
+          }
+        }
+
+        // Ekranı yeni odaklanma için temizle
+        setTargetSushi(null); 
+        setTimeLeft(25 * 60);
       }
     } catch (err) {
       console.error("DB update error:", err);
+    } finally {
+      // Kilidi 2 saniye sonra kaldır
+      setTimeout(() => {
+        isSavingGlobal = false;
+      }, 2000);
     }
   };
 
@@ -193,17 +220,27 @@ export default function Dashboard({
     return () => clearTimeout(timeout);
   }, [isTimerRunning, targetSushi]);
 
-  useEffect(() => {
+useEffect(() => {
+    // 1. DURUM: Süre bitti ve sayaç çalışıyor
     if (timeLeft === 0 && isTimerRunning) {
+      
+      // Eğer kapı zaten kilitliyse (yani şu an DB'ye kayıt yapılıyorsa) dur!
+      if (isSavingRef.current) return; 
+
+      isSavingRef.current = true; // İlk giren kodu kilitler (Diğer render'lar giremez)
+
       const audio = new Audio(dingSound);
       audio.volume = 0.1; 
       audio.play().catch(err => console.log("Ses çalma hatası:", err));
 
       completeSession(); 
       setIsTimerRunning(false);
+    } 
+    // 2. DURUM: Sayaç 0'dan büyükse (yeni bir sushiye başlanmışsa)
+    else if (timeLeft > 0) {
+      isSavingRef.current = false; // Bir sonraki sushi için kilidi aç
     }
   }, [timeLeft, isTimerRunning, setIsTimerRunning, targetSushi]);
-
   useEffect(() => {
     if (sushiMenu && sushiMenu.length > 0 && dailyQuest.requirements.length === 0) {
       generateRandomQuest();
@@ -251,7 +288,7 @@ export default function Dashboard({
       <div className="hud-top-left">
         {/* Menü Butonu */}
         <button className="hud-action-btn hud-menu-btn-wrap" onClick={() => setIsMenuOpen(true)}>
-          <img src={futomakiIcon} alt="Menu" className="hud-icon-btn" />
+          <img src={menuIcon} alt="Menu" className="hud-icon-btn" />
         </button>
 
         {/* Müzik Butonu */}

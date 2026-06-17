@@ -73,9 +73,12 @@
 .hud-coin-icon, .hud-icon-btn {
   width: 30px; /* Diğer ikonları plağa uyumlu olması için azıcık büyüttük */
   height: 30px;
+  filter: drop-shadow(0px 4px 0px rgba(0,0,0,0.2));
   image-rendering: pixelated;
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;
 }
+
+
 
 /* --- HOVER EFEKTLERİ --- */
 /* Plak SADECE kendi ekseninde döner (tooltip etkilenmez) */
@@ -115,9 +118,14 @@
   height: 40px;
 }
 
+.hud-menu-btn-wrap img {
+  width: 80px;
+  height: 30px;
+  filter: drop-shadow(0px 4px 0px rgba(0,0,0,0.3));
+}
+
 .hud-music-btn::after { content: "MUSIC"; }
 .hud-store-btn::after { content: "STORE"; }
-.hud-menu-btn-wrap::after { content: "SETTINGS"; }
 
 /* Hover olunca etiket çıkar */
 .hud-action-btn:hover::after {
@@ -130,8 +138,9 @@
   font-size: 13px;
   font-weight: 900;
   color: #2d2a2e;
+  border-bottom: 2px solid #8c7a65;
   margin-left: 8px; /* İkon ile yazı arasındaki boşluk */
-     
+  filter: drop-shadow(1px 1px 0px rgba(11, 4, 4, 0.8));
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 

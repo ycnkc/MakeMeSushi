@@ -197,6 +197,31 @@ public async Task<ActionResult<int>> CompleteFocus(int sushiID)
         return Ok(myDecors); 
     }
 
+[HttpPost("add-reward-coins")]
+    [Authorize]
+    public async Task<ActionResult<object>> AddRewardCoins([FromBody] RewardRequest request)
+    {
+        var username = User.Identity?.Name;
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+
+        if (user == null) return NotFound("User not found");
+
+        // Görevden gelen ödülü kullanıcının toplam parasına ekle
+        user.TotalCoins += request.RewardAmount;
+        
+        await _context.SaveChangesAsync();
+
+        return Ok(new
+        {
+            message = "Quest reward added successfully!",
+            newBalance = user.TotalCoins
+        });
+    }
     
 
+}
+
+public class RewardRequest
+{
+    public int RewardAmount { get; set; }
 }
