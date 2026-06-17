@@ -13,14 +13,17 @@ export default function PauseMenu({
   
   const handleResume = () => {
     setIsMenuOpen(false);
+    if (targetSushi) {
     setIsTimerRunning(true);
+  }
   };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     setUsername('');
     setPassword('');
-    setStage('login'); 
+    setStage('start'); 
+    setIsMenuOpen(false);
   };
 
   return (

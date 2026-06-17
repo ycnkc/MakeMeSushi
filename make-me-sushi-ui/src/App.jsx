@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+// src/App.jsx
+import { useState, useEffect, useRef } from 'react';
 import dingSound from './assets/ding.mp3';
 import "./App.css";
 
@@ -70,9 +71,7 @@ function App() {
   const [equippedDecorationIds, setEquippedDecorationIds] = useState([]);
   const [showStore, setShowStore] = useState(false);
 
-
-// App.jsx içindeki useEffect bloğunu bu şekilde güncelle
-// --- VERİLERİ YÜKLEME ---
+  // --- VERİLERİ YÜKLEME ---
   useEffect(() => {
     const fetchAllData = async () => {
       try {
@@ -89,18 +88,13 @@ function App() {
           fetch('http://localhost:5008/api/User/stats', { headers })
         ]);
 
-        // 1. SUSHİLER
         if (sushiRes.ok) {
           const sData = await sushiRes.json();
           setSushiMenu(sData);
           const unlockedIds = sData.filter(s => s.isUnlocked || s.IsUnlocked).map(s => s.id || s.Id);
           setUnlockedSushiIds(prev => [...new Set([...prev, ...unlockedIds])]);
         }
-
-        // 2. DEKORASYON MENÜSÜ
         if (decorRes.ok) setDecorationsMenu(await decorRes.json());
-
-        // 3. KULLANICININ DEKORASYONLARI
         if (userDecorRes.ok) {
           const uData = await userDecorRes.json();
           if (uData.length > 0 && typeof uData[0] === 'object') {
@@ -108,8 +102,6 @@ function App() {
             setEquippedDecorationIds(uData.filter(d => d.isEquipped || d.IsEquipped).map(d => d.decorationId || d.DecorationId));
           }
         }
-
-        // 4. KULLANICI COINLERİ
         if (statsRes.ok) {
           const statsData = await statsRes.json();
           setCoins(statsData.currentCoins);
@@ -119,67 +111,61 @@ function App() {
       finally { setIsMenuLoading(false); }
     };
 
-    // DİKKAT: Verileri artık sayfa ilk açıldığında değil,
-    // sadece kullanıcı giriş yapıp "dashboard" ekranına düştüğünde çekiyoruz!
-    if (stage === 'dashboard') {
-      fetchAllData();
-    }
-  }, [stage]); // "stage" state'i değiştiğinde React bu bloğu tetikler
+    if (stage === 'dashboard') fetchAllData();
+  }, [stage]); 
 
   // --- TIMER MANTIĞI ---
- useEffect(() => {
+  useEffect(() => {
     let interval = null;
     if (isTimerRunning && timeLeft > 0) {
       interval = setInterval(() => setTimeLeft((time) => time - 1), 1000);
     } 
-    // BURADAKİ else if (timeLeft === 0) KISMINI TAMAMEN SİLDİK! 
-    // Çünkü o işi artık Dashboard yapacak.
-
     return () => clearInterval(interval);
   }, [isTimerRunning, timeLeft]);
 
   // --- AUTH FONKSİYONLARI ---
   const handleNameSubmit = async () => {
     if (username.trim() === "") return;
-    try {
-      const response = await fetch(`http://localhost:5008/api/Auth/check-user/${username.trim()}`);
+    const response = await fetch(`http://localhost:5008/api/Auth/check-user/${username.trim()}`);
+    if (response.ok) {
       const data = await response.json(); 
       if (data.exists) setStage('login'); else setStage('register'); 
-    } catch (error) { alert("Backend Error"); }
+    } else {
+      // Alert sildik, yerine hata fırlatıyoruz!
+      throw new Error("Server is sleeping! Cannot connect.");
+    }
   };
 
- const handleRegister = async () => {
-    try {
-      const response = await fetch('http://localhost:5008/api/Auth/register', {
-        method: 'POST', 
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: username.trim(), passwordHash: password })
-      });
-      
-      if (response.ok) { 
-        setIsNewUser(true); 
-        // KAYIT BAŞARILIYSA SESSİZCE LOGİN YAP VE TOKEN'I AL:
-        await handleLogin(); 
-      } else {
-        const errorText = await response.text();
-        alert("Kayıt Başarısız: " + errorText);
-      }
-    } catch (error) { 
-      console.error(error); 
+  const handleRegister = async () => {
+    const response = await fetch('http://localhost:5008/api/Auth/register', {
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: username.trim(), passwordHash: password })
+    });
+    
+    if (response.ok) { 
+      setIsNewUser(true); 
+      await handleLogin(); 
+    } else {
+      const errorText = await response.text();
+      throw new Error(errorText || "Registration failed");
     }
   };
 
   const handleLogin = async () => {
-    try {
-      const response = await fetch('http://localhost:5008/api/Auth/login', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: username.trim(), passwordHash: password })
-      });
-      if (response.ok) {
-        localStorage.setItem('token', await response.text()); 
-        setStage('dashboard');
-      }
-    } catch (error) { console.error(error); }
+    const response = await fetch('http://localhost:5008/api/Auth/login', {
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: username.trim(), passwordHash: password })
+    });
+    
+    if (response.ok) {
+      localStorage.setItem('token', await response.text()); 
+      setStage('dashboard');
+    } else {
+      const errorText = await response.text();
+      throw new Error(errorText || "Login failed");
+    }
   };
 
   return (
@@ -202,8 +188,7 @@ function App() {
           unlockedSushiIds={unlockedSushiIds} setUnlockedSushiIds={setUnlockedSushiIds}
           decorationsMenu={decorationsMenu} decorImages={DECOR_IMAGES}
           unlockedDecorationIds={unlockedDecorationIds} setUnlockedDecorationIds={setUnlockedDecorationIds}
-          equippedDecorationIds={equippedDecorationIds}
-  setEquippedDecorationIds={setEquippedDecorationIds}
+          equippedDecorationIds={equippedDecorationIds} setEquippedDecorationIds={setEquippedDecorationIds}
         />
       )}
     </div>

@@ -30,10 +30,6 @@
 }
 
 /* =========================================================
-   2. ÜST HUD ELEMANLARI (SAĞ ÜST VE SİPARİŞ FİŞİ)
-========================================================= */
-
-/* =========================================================
    2. ÜST HUD ELEMANLARI (SAĞ VE SOL KÖŞELER)
 ========================================================= */
 
@@ -77,8 +73,6 @@
   image-rendering: pixelated;
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;
 }
-
-
 
 /* --- HOVER EFEKTLERİ --- */
 /* Plak SADECE kendi ekseninde döner (tooltip etkilenmez) */
@@ -184,14 +178,12 @@
   gap: 8px;
 }
 
-
-
 .quest-item {
   display: flex;
   align-items: center;
   margin-left: 10px; /* İSİM VE KAĞIT KENARI ARASINDAKİ BOŞLUK */
   justify-content: flex-start; /* Elemanları sola doğru sıralar */
-  gap: 15px; /* İSİM VE SAYI ARASINDAKİ BOŞLUK (Burayı zevkine göre artırıp azaltabilirsin!) */
+  gap: 15px; /* İSİM VE SAYI ARASINDAKİ BOŞLUK */
   font-size: 13px;
   font-weight: 900;
   color: #2d2a2e;
@@ -201,8 +193,6 @@
   margin-right: 8px;
   font-size: 12px;
 }
-
-
 
 .quest-progress {
   color: #8c7a65;
@@ -237,7 +227,6 @@
   opacity: 0.5; /* Rengi hafifçe solarak arkaya atar */
 }
 
-
 /* =========================================================
    3. SAĞ ALT SÜTUN (Saat ve Kedi)
 ========================================================= */
@@ -249,6 +238,7 @@
   flex-direction: row; 
   align-items: flex-end; 
   gap: 20px; 
+  z-index: 20;
 }
 
 /* Maneki Neko ve Diyalog Balonu */
@@ -264,8 +254,15 @@
   width: 130px; 
   image-rendering: pixelated;
   filter: drop-shadow(0px 8px 0px rgba(0,0,0,0.4));
-  transition: transform 0.2s;
+  transition: transform 0.1s ease-out, filter 0.1s ease-out;  
   animation: breathe 4s infinite ease-in-out;
+  cursor: pointer;
+}
+
+/* Tıklama Efekti */
+#maneki-dashboard:active {
+  transform: scale(0.92);
+  filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.2));
 }
 
 @keyframes breathe {
@@ -518,4 +515,128 @@
   bottom: 34%;
   right: 36%;
   height: 200px;
+}
+
+/* =========================================================
+   7. MANEKİ AI CHATBOX - PİKSEL TASARIM
+========================================================= */
+.maneki-chat-box {
+  position: absolute;
+  bottom: 140px; /* Kedinin tam kafasının üstünde belirmesi için */
+  right: 100px;
+  width: 320px;
+  height: 250px;
+  background-color: #efdfae;
+  border: 4px dotted #170909; /* Kalın, koyu çerçeve */
+  /* --- GÖNDERDİĞİN PİKSEL GÖRSELİ ARKA PLAN OLARAK AYARLA --- */
+  background-size: 100% 100%; /* Çerçeve esnemesin, kutuyu tam kaplasın */
+  background-repeat: no-repeat;
+  image-rendering: pixelated; /* Pikselliğin bulanıklaşmasını kesin engeller */
+  
+  filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.25)); /* Kutuyu havada göster */
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  overflow: hidden;
+  padding: 12px;
+  transform-origin: bottom right; /* Kedinin kafasından büyümesi için */
+  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), visibility 0.2s;
+
+}
+
+.maneki-chat-box.open {
+  opacity: 1;
+  transform: scale(1);
+  visibility: visible;
+  pointer-events: auto; /* Tıklamalara izin ver */
+}
+
+/* Kutu kapalıyken: Şeffaf, küçülmüş ve tıklanamaz */
+.maneki-chat-box.closed {
+  opacity: 0;
+  transform: scale(0.5); /* Kapanırken küçülme efekti */
+  visibility: hidden; /* Görünmez yap (butonların yanlışlıkla tıklanmasını önler) */
+  pointer-events: none; /* Arkada kalsa bile hiçbir şeyi engellemez */
+}
+
+/* Mesajların listelendiği alan */
+.chat-messages {
+  flex-grow: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Scrollbar Gizleme/İnceltme */
+.chat-messages::-webkit-scrollbar { width: 6px; }
+.chat-messages::-webkit-scrollbar-thumb { background: #8c7a65; }
+
+/* Ortak Baloncuk Stili (Arka plandaki çerçeve üzerinde net okutmak için) */
+.chat-bubble {
+  padding: 8px 12px;
+  font-size: 8px;
+  font-weight: bold;
+  max-width: 85%;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+/* Kullanıcının Mesajları (Sağa dayalı, retro yeşil) */
+.chat-bubble.user {
+  align-self: flex-end;
+  background-color: #4caf50; /* Tatlı bir piksel yeşili */
+  color: #fff;
+  border: 2px solid #2e7d32;
+}
+
+/* Maneki'nin Mesajları (Sola dayalı, retro beyaz) */
+.chat-bubble.maneki {
+  align-self: flex-start;
+  background-color: #fff;
+  color: #2d2a2e;
+  border: 2px solid #d3c6aa;
+}
+
+/* Yazıyor... Animasyonu (Düz Courier New noktaları) */
+.typing-indicator .dot {
+  animation: typing 1.4s infinite ease-in-out both;
+  font-size: 14px;
+}
+.typing-indicator .dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-indicator .dot:nth-child(2) { animation-delay: -0.16s; }
+@keyframes typing { 0%, 80%, 100% { opacity: 0; } 40% { opacity: 1; } }
+
+/* Alt Input ve Buton Alanı (Görselin çerçevesine oturması için) */
+.chat-input-area {
+  display: flex;
+  background: transparent;
+  padding-top: 8px;
+}
+
+.chat-input-area input {
+  flex-grow: 1;
+  border: none;
+  padding: 8px;
+  font-weight: bold;
+  font-size: 9px;
+  outline: none;
+  color: #2d2a2e;
+  background: rgba(255, 255, 255, 0.8); /* Input'un okunması için hafif şeffaf beyaz */
+}
+
+.chat-input-area button {
+  background-color: #2d2a2e;
+  color: #fff;
+  border: none;
+  padding: 0 12px;
+  margin-left: 6px;
+  font-weight: 900;
+  font-size: 9px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.chat-input-area button:hover {
+  background-color: #e5a445; /* Turuncu bir vurgu */
 }

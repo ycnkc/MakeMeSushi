@@ -32,22 +32,92 @@ export default function Dashboard({
   equippedDecorationIds = [], setEquippedDecorationIds = () => {},
 }) {
   
-  // 1. TÜM STATE'LER EN ÜSTTE OLMALI
+  // 1. TÜM STATE'LER
   const [displayedText, setDisplayedText] = useState('');
   const [showStats, setShowStats] = useState(false);
   const [showMusicModal, setShowMusicModal] = useState(false);
   const isSavingRef = useRef(false);
-  // Görev state'i başlangıçta BOŞ olmalı ki useEffect yeni görev üretebilsin
+  
   const [dailyQuest, setDailyQuest] = useState({
     requirements: [],
     reward: 0,
     isCompleted: false
   });
 
-  // 2. FONKSİYONLAR
-const saveQuestRewardToDb = async (rewardAmount) => {
-    // 1. ARAYÜZÜ ANINDA GÜNCELLE (Optimistic Update)
-    // Backend'i beklemeden parayı anında ekrandaki cüzdana yansıtıyoruz!
+  // MANEKİ CHAT STATE'LERİ
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatMessages, setChatMessages] = useState([
+    { sender: 'maneki', text: "Welcome back! Ready to make some sushi?" }
+  ]);
+  const [isChatClosing, setIsChatClosing] = useState(false);
+  const [chatInput, setChatInput] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const messagesEndRef = useRef(null); 
+
+  // YENİ MESAJ ATILDIĞINDA EN ALTA KAYDIR
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [chatMessages, isTyping]);
+
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    if (!chatInput.trim()) return;
+
+    const userMessage = { sender: 'user', text: chatInput };
+    setChatMessages(prev => [...prev, userMessage]);
+    setChatInput('');
+    setIsTyping(true);
+
+    const token = localStorage.getItem('token')?.replace(/^"|"$/g, '');
+
+    try {
+      const response = await fetch('http://localhost:5008/api/Chat/maneki', {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json' 
+        },
+        body: JSON.stringify({ Message: userMessage.text })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setChatMessages(prev => [...prev, { sender: 'maneki', text: data.reply }]);
+      }
+    } catch (err) {
+      console.error("Ollama Chat Error:", err);
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
+  const toggleChat = () => {
+    if (dashboardMode === 'dialogue') {
+      handleDialogueClick();
+    } else {
+      if (isChatOpen) {
+        // Kapanış animasyonunu tetikle
+        setIsChatClosing(true);
+        // Animasyon süresi (200ms) bitince elementi tamamen gizle
+        setTimeout(() => {
+          setIsChatOpen(false);
+          setIsChatClosing(false);
+        }, 200); 
+      } else {
+        // Normal şekilde aç
+        setIsChatOpen(true);
+      }
+    }
+  };
+  // 2. MODAL AÇMA KONTROLLERİ (Açılırken sayacı otomatik durdurur)
+  const handleOpenMenu = () => { setIsTimerRunning(false); setIsMenuOpen(true); };
+  const handleOpenMusic = () => { setIsTimerRunning(false); setShowMusicModal(true); };
+  const handleOpenStore = () => { setIsTimerRunning(false); setShowStore(true); };
+
+  // 3. FONKSİYONLAR
+  const saveQuestRewardToDb = async (rewardAmount) => {
     setCoins(prevCoins => prevCoins + rewardAmount);
 
     const token = localStorage.getItem('token')?.replace(/^"|"$/g, '');
@@ -63,11 +133,9 @@ const saveQuestRewardToDb = async (rewardAmount) => {
 
       if (response.ok) {
         const data = await response.json();
-        // 2. DB'den gelen KESİN bakiye ile eşitle (Garantiye al)
         setCoins(data.newBalance); 
         console.log("Quest reward successfully saved to database! New Balance:", data.newBalance);
       } else {
-        // Eğer backend'de (C# tarafında) bir sorun varsa hatayı konsola basacak
         const errorText = await response.text();
         console.error("Backend'e kaydedilemedi! Hata detayı:", errorText);
       }
@@ -75,10 +143,10 @@ const saveQuestRewardToDb = async (rewardAmount) => {
       console.error("Failed to save quest reward to DB:", err);
     }
   };
-const completeSession = async () => {
+
+  const completeSession = async () => {
     if (!targetSushi) return;
 
-    // Spam engelleme kilidi
     if (isSavingGlobal) {
       console.log("Spam engellendi! Zaten kaydediliyor...");
       return;
@@ -99,12 +167,10 @@ const completeSession = async () => {
 
       if (response.ok) {
         const data = await response.json();
-        setCoins(data.newBalance); // İlk olarak odaktan gelen normal coini güncelliyoruz
+        setCoins(data.newBalance); 
         console.log("Database updated:", data.message);
 
-        // 🔥 GÖREV İLERLEME MANTIĞI (React kurallarına uygun temiz alan)
         if (!dailyQuest.isCompleted) {
-          // Güncel gereksinimleri tamamen dışarıda, saf bir şekilde hesaplıyoruz
           const updatedReqs = dailyQuest.requirements.map(req => {
             if (req.id === sushiId && req.current < req.target) {
               return { ...req, current: req.current + 1 };
@@ -112,31 +178,26 @@ const completeSession = async () => {
             return req;
           });
 
-          // Tüm hedefler doldu mu kontrolü
           const allDone = updatedReqs.every(req => req.current >= req.target);
 
-          // Hesaplama bittikten sonra state'i sadece UI çizimi için güncelliyoruz
           setDailyQuest(prev => ({
             ...prev,
             requirements: updatedReqs,
             isCompleted: allDone
           }));
 
-          // Eğer bu sushi ile birlikte fişteki HER ŞEY bittiyse veritabanına ödülü gönderiyoruz!
           if (allDone) {
             console.log("Tüm siparişler başarıyla tamamlandı! Ödül yükleniyor: ", dailyQuest.reward);
             await saveQuestRewardToDb(dailyQuest.reward);
           }
         }
 
-        // Ekranı yeni odaklanma için temizle
         setTargetSushi(null); 
         setTimeLeft(25 * 60);
       }
     } catch (err) {
       console.error("DB update error:", err);
     } finally {
-      // Kilidi 2 saniye sonra kaldır
       setTimeout(() => {
         isSavingGlobal = false;
       }, 2000);
@@ -187,7 +248,7 @@ const completeSession = async () => {
     });
   };
 
-  // 3. EFFECT'LER (TETİKLEYİCİLER)
+  // 4. EFFECT'LER (TETİKLEYİCİLER)
   useEffect(() => {
     if (!isTimerRunning || !targetSushi) {
       setDisplayedText("");
@@ -220,14 +281,11 @@ const completeSession = async () => {
     return () => clearTimeout(timeout);
   }, [isTimerRunning, targetSushi]);
 
-useEffect(() => {
-    // 1. DURUM: Süre bitti ve sayaç çalışıyor
+  useEffect(() => {
     if (timeLeft === 0 && isTimerRunning) {
-      
-      // Eğer kapı zaten kilitliyse (yani şu an DB'ye kayıt yapılıyorsa) dur!
       if (isSavingRef.current) return; 
 
-      isSavingRef.current = true; // İlk giren kodu kilitler (Diğer render'lar giremez)
+      isSavingRef.current = true; 
 
       const audio = new Audio(dingSound);
       audio.volume = 0.1; 
@@ -236,18 +294,18 @@ useEffect(() => {
       completeSession(); 
       setIsTimerRunning(false);
     } 
-    // 2. DURUM: Sayaç 0'dan büyükse (yeni bir sushiye başlanmışsa)
     else if (timeLeft > 0) {
-      isSavingRef.current = false; // Bir sonraki sushi için kilidi aç
+      isSavingRef.current = false; 
     }
   }, [timeLeft, isTimerRunning, setIsTimerRunning, targetSushi]);
+
   useEffect(() => {
     if (sushiMenu && sushiMenu.length > 0 && dailyQuest.requirements.length === 0) {
       generateRandomQuest();
     }
   }, [sushiMenu]);
 
-  // 4. DEĞİŞKENLER VE HESAPLAMALAR
+  // 5. DEĞİŞKENLER VE HESAPLAMALAR
   const activeDecorations = decorationsMenu.filter((decor) =>
     equippedDecorationIds.includes(decor.id ?? decor.Id)
   );
@@ -264,7 +322,7 @@ useEffect(() => {
     ? decorImages[equippedBackground.imagePath ?? equippedBackground.ImagePath]
     : defaultBg;
 
-  // 5. RENDER BÖLÜMÜ
+  // 6. RENDER BÖLÜMÜ
   return (
     <div
       className="fade-in dashboard-screen"
@@ -286,40 +344,32 @@ useEffect(() => {
 
       {/* SOL ÜST HUD PANELI */}
       <div className="hud-top-left">
-        {/* Menü Butonu */}
-        <button className="hud-action-btn hud-menu-btn-wrap" onClick={() => setIsMenuOpen(true)}>
+        <button className="hud-action-btn hud-menu-btn-wrap" onClick={handleOpenMenu}>
           <img src={menuIcon} alt="Menu" className="hud-icon-btn" />
         </button>
 
-        {/* Müzik Butonu */}
-        <button className="hud-action-btn hud-music-btn" onClick={() => setShowMusicModal(true)}>
+        <button className="hud-action-btn hud-music-btn" onClick={handleOpenMusic}>
           <img src={cdImg} alt="Music" className="cd-icon" />
         </button>
 
-        {/* Store Butonu */}
-        <button className="hud-action-btn hud-store-btn" onClick={() => setShowStore(true)}>
+        <button className="hud-action-btn hud-store-btn" onClick={handleOpenStore}>
           <img src={coinIcon} alt="Coin" className="hud-coin-icon" />
           <span className="hud-coin-text">{coins}</span>
         </button>
       </div>
 
-      {/* Müzik Çalar Sistemi */}
       <MusicPlayer 
         musicFiles={[lofi1, lofi2]} 
         showMusicModal={showMusicModal} 
         setShowMusicModal={setShowMusicModal} 
       />
 
-      {/* SİPARİŞ KAĞIDI - GÜNLÜK GÖREVLER */}
+      {/* SİPARİŞ KAĞIDI */}
       <div className="hud-order-paper fade-in" style={{ zIndex: 10 }}>
-        
-
         <h3 className="order-title">ORDERS</h3>
-
         <div className="quest-list">
           {dailyQuest.requirements?.map((req, idx) => {
             const isDone = req.current >= req.target;
-            
             return (
               <div key={idx} className={`quest-item ${isDone ? 'completed-task' : ''}`}>
                 <span className="quest-name">{req.name}</span>
@@ -328,28 +378,13 @@ useEffect(() => {
             );
           })}
         </div>
-
         <div className="order-item-divider" />
-
         <div className="quest-reward">
           <span className="reward-value">REWARD: 🪙 {dailyQuest.reward}</span>
         </div>
       </div>
 
-      {/* Pause menüsü */}
-      {isMenuOpen && (
-        <PauseMenu
-          setIsMenuOpen={setIsMenuOpen}
-          setIsTimerRunning={setIsTimerRunning}
-          setStage={setStage}
-          setUsername={setUsername}
-          setPassword={setPassword}
-          setShowStats={setShowStats}
-          sushiImages={sushiImages}
-        />
-      )}
-
-      {/* Hazırlanan sushi alanı */}
+      {/* HAZIRLANAN SUSHİ ALANI */}
       {targetSushi && (
         <div className="preparing-container fade-in" style={{ zIndex: 5 }}>
           <img
@@ -368,8 +403,8 @@ useEffect(() => {
         </div>
       )}
 
-      {/* Sağ alt sütun: Saat ve kedi */}
-      <div className="dashboard-right-column" style={{ zIndex: 5 }}>
+      {/* SAĞ ALT SÜTUN: SAAT VE MANEKİ */}
+      <div className="dashboard-right-column" style={{ zIndex: 20 }}>
         {dashboardMode === 'focus' && (
           <div className="dashboard-timer-section fade-in">
             <div className="dashboard-clock-wrapper" onClick={handleClockClick}>
@@ -382,13 +417,15 @@ useEffect(() => {
           </div>
         )}
 
-        <div
-          className="dialogue-maneki-row"
-          onClick={handleDialogueClick}
-          style={{ cursor: dashboardMode === 'dialogue' ? 'pointer' : 'default' }}
-        >
+        <div className="dialogue-maneki-row">
+          
+          {/* 1. KLASİK HOŞ GELDİN BALONU */}
           {dashboardMode === 'dialogue' && (
-            <div className="text-box-wrapper fade-in-bubble">
+            <div 
+              className="text-box-wrapper fade-in-bubble"
+              onClick={handleDialogueClick}
+              style={{ cursor: 'pointer' }}
+            >
               <img id="text-box" src={textBox} alt="Speech Bubble" />
               <h2 className="introduction-text">
                 {isNewUser
@@ -399,9 +436,66 @@ useEffect(() => {
               </h2>
             </div>
           )}
-          <img id="maneki-dashboard" src={manekiHappy} alt="Maneki Happy" />
+
+          {/* 2. YAPAY ZEKA SOHBET KUTUSU */}
+          {dashboardMode !== 'dialogue' && (
+            <div className={`maneki-chat-box ${isChatOpen ? 'open' : 'closed'}`}>
+              <div className="chat-messages">
+                {chatMessages.map((msg, idx) => (
+                  <div key={idx} className={`chat-bubble ${msg.sender}`}>
+                    {msg.text}
+                  </div>
+                ))}
+                {isTyping && (
+                  <div className="chat-bubble maneki typing-indicator">
+                    <span className="dot">.</span><span className="dot">.</span><span className="dot">.</span>
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+              
+              <form className="chat-input-area" onSubmit={handleSendMessage}>
+                <input 
+                  type="text" 
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  placeholder="Ask the chef..." 
+                  maxLength={100}
+                />
+                <button type="submit">SEND</button>
+              </form>
+            </div>
+          )}
+
+          {/* 3. MANEKİ KEDİSİ (Sadeleştirilmiş Tıklama) */}
+          <img 
+            id="maneki-dashboard" 
+            src={manekiHappy} 
+            alt="Maneki Happy" 
+            onClick={() => {
+              if (dashboardMode === 'dialogue') {
+                handleDialogueClick();
+              } else {
+                setIsChatOpen(!isChatOpen); // Direkt state'i tersine çeviriyoruz
+              }
+            }}
+          />
         </div>
-      </div>
+      </div> 
+
+      {/* --- MODALLAR --- */}
+      {isMenuOpen && (
+        <PauseMenu
+          setIsMenuOpen={setIsMenuOpen}
+          setIsTimerRunning={setIsTimerRunning}
+          setStage={setStage}
+          setUsername={setUsername}
+          setPassword={setPassword}
+          setShowStats={setShowStats}
+          sushiImages={sushiImages}
+          targetSushi={targetSushi}
+        />
+      )}
 
       {showSushiSelector && (
         <SushiModal

@@ -1,6 +1,7 @@
 // src/components/StoreModal.jsx
 import React, { useState } from 'react';
 import './Modals.css';
+import purchaseSoundFile from '../assets/purchase-success.mp3';
 
 export default function StoreModal({ 
   sushiMenu, decorationsMenu, sushiImages, decorImages, 
@@ -13,6 +14,11 @@ export default function StoreModal({
   const [notification, setNotification] = useState(null); 
   const [isClosing, setIsClosing] = useState(false);
 
+  const playSuccessSound = () => {
+    const audio = new Audio(purchaseSoundFile);
+    audio.volume = 0.5; // Sesi çok patlamaması için yarı yarıya kısıyoruz (isteğe bağlı)
+    audio.play().catch(err => console.log("Ses çalınamadı:", err));
+  };
   // --- KAPANIŞ ANİMASYONU ---
   const handleClose = () => {
     setIsClosing(true);
@@ -43,6 +49,7 @@ export default function StoreModal({
         setCoins(data.newBalance);
         setUnlockedSushiIds(prev => [...prev, sushiId]);
         setNotification({ type: 'success', text: `Unlocked ${sushi.name || sushi.Name}!`, action: 'closeNotification' });
+        playSuccessSound();
       }
     } catch (err) { console.error(err); }
   };
@@ -69,6 +76,7 @@ export default function StoreModal({
         setCoins(data.newBalance);
         setUnlockedDecorationIds(prev => [...prev, decorId]);
         setNotification({ type: 'success', text: `Purchased ${decor.name || decor.Name}!`, action: 'closeNotification' });
+        playSuccessSound();
       }
     } catch (err) { console.error(err); }
   };
