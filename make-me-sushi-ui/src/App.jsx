@@ -72,7 +72,7 @@ function App() {
   const [showStore, setShowStore] = useState(false);
 
   // --- VERİLERİ YÜKLEME ---
-  useEffect(() => {
+useEffect(() => {
     const fetchAllData = async () => {
       try {
         const token = localStorage.getItem('token')?.replace(/^"|"$/g, '');
@@ -88,32 +88,51 @@ function App() {
           fetch('http://localhost:5008/api/User/stats', { headers })
         ]);
 
+        // 1. SUSHİLER (Eski listeye ekleme YAPMA, direkt sıfırdan ez)
         if (sushiRes.ok) {
           const sData = await sushiRes.json();
           setSushiMenu(sData);
           const unlockedIds = sData.filter(s => s.isUnlocked || s.IsUnlocked).map(s => s.id || s.Id);
-          setUnlockedSushiIds(prev => [...new Set([...prev, ...unlockedIds])]);
+          // 'prev' kullanmıyoruz. Sadece default 1,2 ve backendden gelenleri koyuyoruz:
+          setUnlockedSushiIds([...new Set([1, 2, ...unlockedIds])]); 
         }
+
+        // 2. DEKORASYON MENÜSÜ
         if (decorRes.ok) setDecorationsMenu(await decorRes.json());
+
+        // 3. KULLANICININ DEKORASYONLARI
         if (userDecorRes.ok) {
           const uData = await userDecorRes.json();
-          if (uData.length > 0 && typeof uData[0] === 'object') {
+          if (uData && uData.length > 0) {
             setUnlockedDecorationIds(uData.map(d => d.decorationId || d.DecorationId));
             setEquippedDecorationIds(uData.filter(d => d.isEquipped || d.IsEquipped).map(d => d.decorationId || d.DecorationId));
+          } else {
+            // 🚀 EĞER YENİ KULLANICIYSA VE DEKORU YOKSA, ESKİ KULLANICININ EŞYALARINI SIFIRLA!
+            setUnlockedDecorationIds([]);
+            setEquippedDecorationIds([]);
           }
         }
+
+        // 4. KULLANICI COINLERİ
         if (statsRes.ok) {
           const statsData = await statsRes.json();
-          setCoins(statsData.currentCoins);
+          setCoins(statsData.currentCoins || 0); // Para yoksa 0 yap
         }
           
       } catch (error) { console.error("Veri yükleme hatası:", error); }
       finally { setIsMenuLoading(false); }
     };
 
-    if (stage === 'dashboard') fetchAllData();
-  }, [stage]); 
-
+    if (stage === 'dashboard') {
+      fetchAllData();
+    } else {
+      // 🚀 KULLANICI ÇIKIŞ YAPTIĞINDA VEYA START EKRANINDAYKEN UYGULAMAYI TEMİZLE
+      setUnlockedSushiIds([1, 2]);
+      setUnlockedDecorationIds([]);
+      setEquippedDecorationIds([]);
+      setCoins(0);
+    }
+  }, [stage]);
   // --- TIMER MANTIĞI ---
   useEffect(() => {
     let interval = null;

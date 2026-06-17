@@ -29,8 +29,13 @@ namespace MakeMeSushi.API.Data
             .WithMany()
             .HasForeignKey(i => i.UserId);
 
+            modelBuilder.Entity<User>()
+        .Property(u => u.TotalCoins)
+        .HasDefaultValue(100);
+
             base.OnModelCreating(modelBuilder);
 
+            
         }
     }
 }
